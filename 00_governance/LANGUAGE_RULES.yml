@@ -1,0 +1,13 @@
+forbidden_terms:
+  - guarantee
+  - guaranteed
+  - promise
+  - ensure
+  - will deliver
+  - represent
+  - representation
+  - fiduciary
+  - legal advice
+required_sections:
+  - Decision State
+  - What This Memo Does Not Say
