@@ -2,10 +2,55 @@
   "base_dir": "04_evals/golden_cases/CASE_0001",
   "files": [
     {
+      "mtime": 1767825388,
+      "path": "00_intake/intake.md",
+      "sha256": "505e02e02c9a762c39a7d1634ed760345bd69eea0ff8b33f3972ce0e5485258f",
+      "size": 46
+    },
+    {
+      "mtime": 1767825060,
+      "path": "00_intake/intake_ack.json",
+      "sha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "size": 2
+    },
+    {
+      "mtime": 1767825388,
+      "path": "02_analysis/true.md",
+      "sha256": "505e02e02c9a762c39a7d1634ed760345bd69eea0ff8b33f3972ce0e5485258f",
+      "size": 46
+    },
+    {
+      "mtime": 1767825388,
+      "path": "02_analysis/north.md",
+      "sha256": "505e02e02c9a762c39a7d1634ed760345bd69eea0ff8b33f3972ce0e5485258f",
+      "size": 46
+    },
+    {
+      "mtime": 1767825388,
+      "path": "02_analysis/aligned.md",
+      "sha256": "505e02e02c9a762c39a7d1634ed760345bd69eea0ff8b33f3972ce0e5485258f",
+      "size": 46
+    },
+    {
       "mtime": 1767820678,
       "path": "03_memo/Decision_Memo.md",
-      "sha256": "2a554e67e2c085438120685d0ecb6e7eb2effe7f2b74dd2d18c939f1a73a189a"
+      "sha256": "2a554e67e2c085438120685d0ecb6e7eb2effe7f2b74dd2d18c939f1a73a189a",
+      "size": 243
+    },
+    {
+      "mtime": 1767825536,
+      "path": "04_package/manifest.json",
+      "sha256": "b10b05b0b684b65e2c88dd3adf284b797f89100c12a5f96bf25598670f99919b",
+      "size": 1624
+    },
+    {
+      "mtime": 1767825536,
+      "path": "04_package/gate_report.json",
+      "sha256": "06bac49ede21382503fd359f10e5b2ef172e6cc4066fc737006ac5f001de450d",
+      "size": 550
     }
   ],
-  "generated_at": "2026-01-07T21:20:47Z"
+  "generated_at": "2026-01-07T22:38:55Z",
+  "python_version": "3.12.3",
+  "tesgi_version": "0.1.1"
 }

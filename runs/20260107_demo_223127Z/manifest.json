@@ -2,10 +2,10 @@
   "base_dir": "02_client_work/demo",
   "files": [
     {
-      "mtime": 1767825388,
+      "mtime": 1767825048,
       "path": "00_intake/intake.md",
-      "sha256": "505e02e02c9a762c39a7d1634ed760345bd69eea0ff8b33f3972ce0e5485258f",
-      "size": 46
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
     },
     {
       "mtime": 1767825050,
@@ -14,22 +14,22 @@
       "size": 2
     },
     {
-      "mtime": 1767825388,
+      "mtime": 1767825048,
       "path": "02_analysis/true.md",
-      "sha256": "505e02e02c9a762c39a7d1634ed760345bd69eea0ff8b33f3972ce0e5485258f",
-      "size": 46
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
     },
     {
-      "mtime": 1767825388,
+      "mtime": 1767825048,
       "path": "02_analysis/north.md",
-      "sha256": "505e02e02c9a762c39a7d1634ed760345bd69eea0ff8b33f3972ce0e5485258f",
-      "size": 46
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
     },
     {
-      "mtime": 1767825388,
+      "mtime": 1767825048,
       "path": "02_analysis/aligned.md",
-      "sha256": "505e02e02c9a762c39a7d1634ed760345bd69eea0ff8b33f3972ce0e5485258f",
-      "size": 46
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
     },
     {
       "mtime": 1767822828,
@@ -38,19 +38,19 @@
       "size": 243
     },
     {
-      "mtime": 1767825530,
+      "mtime": 1767825088,
       "path": "04_package/manifest.json",
-      "sha256": "50c9441c8dbcd71458a200649b3a576b390c9328b8d45cc3295cb7f3e8fc5853",
-      "size": 1612
+      "sha256": "9adb40dea5c0c9dce430f39412ac5266719c6d4a59234c7c69a12db676ece542",
+      "size": 1608
     },
     {
-      "mtime": 1767825530,
+      "mtime": 1767825088,
       "path": "04_package/gate_report.json",
-      "sha256": "8e62d7557a2ddbcb077959dccc6a32a03400f3f6373fce43f806fdd0c68ae3d8",
+      "sha256": "9ca2a2f04ac403705495249973406a81655bac1ba35ce7af4acb75017246b6fd",
       "size": 545
     }
   ],
-  "generated_at": "2026-01-07T22:38:49Z",
+  "generated_at": "2026-01-07T22:31:27Z",
   "python_version": "3.12.3",
   "tesgi_version": "0.1.1"
 }

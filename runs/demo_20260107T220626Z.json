@@ -1,7 +1,0 @@
-{
-  "gate_report": "/mnt/e/tesgi-advisory-os/02_client_work/demo/04_package/gate_report.json",
-  "generated_at": "2026-01-07T22:06:26Z",
-  "manifest": "/mnt/e/tesgi-advisory-os/02_client_work/demo/04_package/manifest.json",
-  "slug": "demo",
-  "status": "pass"
-}

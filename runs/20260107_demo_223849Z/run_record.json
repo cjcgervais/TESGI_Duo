@@ -1,0 +1,8 @@
+{
+  "build_log": "/mnt/e/tesgi-advisory-os/runs/20260107_demo_223849Z/build_log.txt",
+  "gate_report": "/mnt/e/tesgi-advisory-os/runs/20260107_demo_223849Z/gate_report.json",
+  "generated_at": "2026-01-07T22:38:49Z",
+  "manifest": "/mnt/e/tesgi-advisory-os/runs/20260107_demo_223849Z/manifest.json",
+  "slug": "demo",
+  "status": "pass"
+}

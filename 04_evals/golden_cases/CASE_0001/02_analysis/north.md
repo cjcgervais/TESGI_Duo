@@ -1,0 +1,1 @@
+<!-- demo scaffold: intentionally minimal -->
