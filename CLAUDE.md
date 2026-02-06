@@ -23,6 +23,7 @@ Failure of any leg → **Pause** or **Avoid**. Never reframe to force a pass.
 
 ```bash
 /project:intake [client-id]    # Process intake form
+/project:sources [client-id]   # Track source provenance
 /project:esg [client-id]       # Run ESG impact assessment
 /project:analyze [client-id]   # Run kernel analysis (use --ultrathink)
 /project:memo [client-id]      # Generate decision memo
@@ -36,6 +37,7 @@ Failure of any leg → **Pause** or **Avoid**. Never reframe to force a pass.
 ├── skills/
 │   ├── decision-kernel/    # TRUE/NORTH/ALIGNED analysis
 │   ├── esg-analyst/        # ESG impact assessment
+│   ├── evidence-notary/    # Source provenance tracking
 │   ├── memo-generator/     # Decision memo production
 │   └── intake-processor/   # Client intake validation
 ├── clients/                # Active client work (gitignored)
@@ -48,16 +50,18 @@ Failure of any leg → **Pause** or **Avoid**. Never reframe to force a pass.
 |-------|---------|---------|
 | `decision-kernel` | Apply TRUE/NORTH/ALIGNED analysis | `/project:analyze` |
 | `esg-analyst` | ESG impact assessment for land acquisition | `/project:esg` |
+| `evidence-notary` | Source provenance and uncertainty mapping | `/project:sources` |
 | `memo-generator` | Generate client Decision Memo | `/project:memo` |
 | `intake-processor` | Validate and setup client workspace | `/project:intake` |
 
 ## Advisory Council (Subagent Pattern)
 
 For complex analysis, invoke specialized subagents:
-1. **Truth Auditor** — Information integrity (TRUE leg)
-2. **Horizon Analyst** — Long-term context (NORTH leg)
-3. **Coherence Evaluator** — Objective-constraint alignment (ALIGNED leg)
-4. **Synthesis Lead** — Final determination
+1. **Evidence Notary** — Source provenance and uncertainty mapping
+2. **Truth Auditor** — Information integrity (TRUE leg)
+3. **Horizon Analyst** — Long-term context (NORTH leg)
+4. **Coherence Evaluator** — Objective-constraint alignment (ALIGNED leg)
+5. **Synthesis Lead** — Final determination
 
 Use `ultrathink` for multi-agent kernel analysis.
 
