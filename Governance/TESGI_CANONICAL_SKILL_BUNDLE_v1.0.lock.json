@@ -1,0 +1,234 @@
+{
+  "bundle": {
+    "name": "TESGI Canonical Skill Bundle",
+    "version": "1.0.0",
+    "status": "locked",
+    "effective_date": "2026-02-06",
+    "scope": "TESGI Advisory operations (Claude + Codex duo)"
+  },
+  "governance_baseline": {
+    "coordination_repo": {
+      "path": "E:\\TESGI_Duo_Advisory_Claude_Codex",
+      "commit": "31243ea"
+    },
+    "tesgi_advisory_os": {
+      "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\tesgi-advisory-os",
+      "commit": "ba2704d",
+      "governance_files": [
+        {
+          "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\tesgi-advisory-os\\00_governance\\KERNEL.md",
+          "sha256": "b46d7558e7214fbc8c275dea25f9215d4b091a4bf70dc3e90731fc8075b7459b"
+        },
+        {
+          "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\tesgi-advisory-os\\00_governance\\BOUNDARIES.md",
+          "sha256": "5957b73ba32279b18b4036e247e6e0c62c8f7f58b7ac84131d97d33e3449a93b"
+        },
+        {
+          "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\tesgi-advisory-os\\00_governance\\LANGUAGE_RULES.yml",
+          "sha256": "9ed363eff9999024c894b3889fb5ac9340955814ebf50c0ccd91b6d9c02674ae"
+        },
+        {
+          "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\tesgi-advisory-os\\00_governance\\CHANGE_CONTROL.md",
+          "sha256": "92e38212474480c6c56463fc900285164f8e7049c18274e2b6262e8b652cdc4f"
+        },
+        {
+          "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\tesgi-advisory-os\\00_governance\\PLUGIN_ALLOWLIST.json",
+          "sha256": "fda09d780e79006b842323ecc6435cb4e1eb01a2b0014d6674307191a953673f"
+        }
+      ]
+    },
+    "tesgi_claudvisor": {
+      "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\TESGI_Claudvisor",
+      "commit": "4709670"
+    }
+  },
+  "audit_snapshot": {
+    "ran_at_utc": "2026-02-06T16:21:06Z",
+    "gate_status": {
+      "validate_demo": "pass",
+      "eval_include_negative": "pass",
+      "plugin_allowlist_listed": "pass"
+    },
+    "core_gates": [
+      "O",
+      "A",
+      "B",
+      "C",
+      "D",
+      "E"
+    ],
+    "eval_cases": {
+      "positive_cases": 6,
+      "negative_expected_failures": 8,
+      "total_cases": 14
+    }
+  },
+  "locked_skills": {
+    "claude_required": [
+      {
+        "name": "decision-kernel",
+        "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\TESGI_Claudvisor\\skills\\decision-kernel",
+        "skill_md_sha256": "c85ae968a508f996f64b0e69071b59e993e5202fa27c65954f27a8d96700fecd",
+        "dir_sha256": "6f9eb590ff3446b55eebc2348036b3a98539edb7888ab4d63a49143d0aba216e",
+        "file_count": 4
+      },
+      {
+        "name": "intake-processor",
+        "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\TESGI_Claudvisor\\skills\\intake-processor",
+        "skill_md_sha256": "5e4d3cfdbfbcf2c41b9a12a5e57674a919d705c769c7e5b2ba180f3cb62f15d3",
+        "dir_sha256": "785ecb41b7cfb8aeb7e858bcd8ba7f33b8e64ab10286b3a2aacf24d51abe41cc",
+        "file_count": 2
+      },
+      {
+        "name": "evidence-notary",
+        "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\TESGI_Claudvisor\\skills\\evidence-notary",
+        "skill_md_sha256": "09e35de46b56a3ffd58944d1cf56c3bcab2d1a4a2e0baf5e5c6c23ba01907bb1",
+        "dir_sha256": "6d8ea8118891ad2e9a9db81c07f358bd3bfbac33a910beacd2c31810db7e63f3",
+        "file_count": 3
+      },
+      {
+        "name": "esg-analyst",
+        "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\TESGI_Claudvisor\\skills\\esg-analyst",
+        "skill_md_sha256": "a5776aab0b44c50b28ff7d6f290d409543022e79212e9ed963d04978f67e289f",
+        "dir_sha256": "0e7f168358c4c769ba6888ca5d5359bbda04f6d9eb6e4958831165efc4739055",
+        "file_count": 4
+      },
+      {
+        "name": "memo-generator",
+        "path": "E:\\TESGI_Duo_Advisory_Claude_Codex\\TESGI_Claudvisor\\skills\\memo-generator",
+        "skill_md_sha256": "35e9fd5c575472243cd619309b71ec86b53c24c7614618f0221b9cb7c4b7af4d",
+        "dir_sha256": "166bf31c37d5a4f65b453fead8a6b1ba02397f1dccb9cc252630c3038673d2a1",
+        "file_count": 2
+      }
+    ],
+    "codex_required": [
+      {
+        "name": "doc",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\doc",
+        "skill_md_sha256": "0a635585817d1ac96e8e512114d08258b70f9e54ce0052078a258291ac13a8ed",
+        "dir_sha256": "036b1981fc789118f7f086aa17e97d5201e0cc3f0f0971c36cc502082cf25c13",
+        "file_count": 6
+      },
+      {
+        "name": "figma-implement-design",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\figma-implement-design",
+        "skill_md_sha256": "adea0fa5ed0b77a75112f64737f4aa562fcc231d242370f8cbdb25d050be19ad",
+        "dir_sha256": "2182c278bea57f806c6981e4b8b61c159c98d59d8aff41081c3fbebef51cbdfe",
+        "file_count": 6
+      },
+      {
+        "name": "gh-address-comments",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\gh-address-comments",
+        "skill_md_sha256": "77389eefd3fb6584210668ca8e43f4b8de87e7722ddd953474bc9e24cdfaaedd",
+        "dir_sha256": "352712969e1eb36c4662224f4b7b3c78c6fef072136135130e1b86194423ba26",
+        "file_count": 6
+      },
+      {
+        "name": "jupyter-notebook",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\jupyter-notebook",
+        "skill_md_sha256": "62f102e8554b25716dccef0ffab4572d4e3eaf05ccc76562d33a065bc9c521fb",
+        "dir_sha256": "2595c778bd123e393afb8ee997030f2fac27fe7855deba7330383726551bdeec",
+        "file_count": 12
+      },
+      {
+        "name": "notion-knowledge-capture",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\notion-knowledge-capture",
+        "skill_md_sha256": "b49383b229bc766190ea22bb58502cfcf7e08449f5fce55a104eef1e54e27f00",
+        "dir_sha256": "8a07888f0340cad117e0fbd7bd8f0780b6b2da60eab1260a92c03a4ba0281999",
+        "file_count": 18
+      },
+      {
+        "name": "notion-research-documentation",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\notion-research-documentation",
+        "skill_md_sha256": "e88a46da978cf6f088a788fa92ee736df699a355a72f41f14bdc258bf3ef57e7",
+        "dir_sha256": "b71b6b5261b1acd043cfd067ba90fb443da8910565dc1431af056b1d46f00dc2",
+        "file_count": 23
+      },
+      {
+        "name": "notion-spec-to-implementation",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\notion-spec-to-implementation",
+        "skill_md_sha256": "6e22c4c6df441e849fa6b4b825371b579c9bb4896f97bedca5f8536020427a81",
+        "dir_sha256": "8cd861e62e75ce369c860400a2c87c342819639151f8c85a2b5f0d56eb0283e2",
+        "file_count": 19
+      },
+      {
+        "name": "pdf",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\pdf",
+        "skill_md_sha256": "d108cf2b36355ab37eb5962933f4d09785ec002f3105c506129320209306b9d2",
+        "dir_sha256": "42d5b0d87cb7e047740270108b3c044a0abee477f26081222341751bda1d786d",
+        "file_count": 4
+      },
+      {
+        "name": "playwright",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\playwright",
+        "skill_md_sha256": "7172692b607a12763b20e4aea03ad49faf244447e5095e44e51ea211082b7e32",
+        "dir_sha256": "cbac55b55a86cccbecc5cba865ea28922f2d8f0fedd2b062aea505bcf445496c",
+        "file_count": 9
+      },
+      {
+        "name": "screenshot",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\screenshot",
+        "skill_md_sha256": "081935a6a163277537d46365f49d6b4a3cb40b4748347e7e88759c5927fa8cf5",
+        "dir_sha256": "d0094a5506cfc7a2c5a14f752fb42b71c174fcca92e7f7512cfb481b3745282e",
+        "file_count": 11
+      },
+      {
+        "name": "security-best-practices",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\security-best-practices",
+        "skill_md_sha256": "7b3dae1ffc5434d890f3c65c8f552af52d0307fab3b35dec13013c9ca3844c4f",
+        "dir_sha256": "2acc5a8f7944834cadff03dfe3aad76429fed100025facb857684d39e2e31fe5",
+        "file_count": 13
+      },
+      {
+        "name": "security-ownership-map",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\security-ownership-map",
+        "skill_md_sha256": "f06c1a59247569326702c945f397af163ea96cf2ecfdf2dde280605bf89a3ec8",
+        "dir_sha256": "08f9419623e7c1b248aee6bfef6a47ba634c81ead1ab9882dae6c42865093381",
+        "file_count": 8
+      },
+      {
+        "name": "security-threat-model",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\security-threat-model",
+        "skill_md_sha256": "1283c0dd62a8104d9edda4583569b5d8510b4ddaa45120687c999250fd96bad2",
+        "dir_sha256": "e306b196d0d2754d60824ab0a3ed0d92dc6e844d651aa43566c5b5bbfadd1abe",
+        "file_count": 5
+      },
+      {
+        "name": "spreadsheet",
+        "path": "C:\\Users\\Chad\\.codex\\skills\\spreadsheet",
+        "skill_md_sha256": "a9c3e61acb5e33b92760e9a1ea75b0031328095b0bb0118cacd055d749d1b73f",
+        "dir_sha256": "b30b9f32a3308e990cc4351cb3d9fc0ba3a2dcf89662ba5dee52994e6508c6d8",
+        "file_count": 9
+      }
+    ],
+    "codex_system_preinstalled": [
+      {
+        "name": "skill-installer",
+        "source": "C:/Users/Chad/.codex/skills/.system/skill-installer",
+        "note": "preinstalled system skill"
+      }
+    ]
+  },
+  "lock_policy": {
+    "allow_additions": false,
+    "allow_removals": false,
+    "allow_mutations": false,
+    "change_control": {
+      "required_actions": [
+        "Create RFC/ADR with justification and risk",
+        "Human approval before modifying bundle",
+        "Regenerate lock hashes",
+        "Re-run governance gates and eval suite",
+        "Record change in Coordination_Inbox/codex_claude_changelog.md"
+      ]
+    }
+  },
+  "verification": {
+    "hashing": "SHA-256 over SKILL.md and skill directory file-hash rollup",
+    "verify_commands": [
+      "python -m tesgi validate demo",
+      "python -m tesgi eval --include-negative",
+      "python 03_tools/plugins/list_allowlisted_plugins.py"
+    ]
+  }
+}

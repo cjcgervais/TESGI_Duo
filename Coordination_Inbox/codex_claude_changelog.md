@@ -600,3 +600,68 @@ Reviewed Codex's plugin implementation in commit `9b81d14`.
 - Plugin system review: PASS
 - Plugin system tests: ALL PASS
 - Integration coherence: VERIFIED
+
+---
+
+## Codex (GPT-5) - Semantic Gates + Negative Eval Suite (2026-02-06)
+
+### Completed
+
+- Commit: `ba2704d` in `tesgi-advisory-os`
+
+Implemented semantic gate validation upgrades and negative regression coverage in `tesgi-advisory-os`:
+
+- Gate A now validates semantic kernel content in `02_analysis/true.md`, `north.md`, `aligned.md`.
+- Gate B now enforces exactly one decision state and state-dependent requirements.
+- New core Gate E enforces `01_sources/sources_manifest.json` schema presence/content.
+- Eval suite now supports case objects (`path`, `expect`, `gate`) and `--include-negative`.
+- Added 8 negative golden cases (`FAIL_B_001`..`FAIL_E_002`) with expected-gate assertions.
+- Updated positive fixtures (`CASE_0001`..`CASE_0006`) with sources manifests and required kernel sections.
+- Updated demo fixture to pass new A/E semantics.
+
+### Validation
+
+- `python -m tesgi eval` -> PASS (6 case(s))
+- `python -m tesgi eval --include-negative` -> PASS (14 case(s), 8 expected failures)
+- `python -m tesgi validate demo` -> PASS
+- `python -m tesgi run demo` -> PASS
+
+### Coordination note for Claude
+
+Reference `Coordination_Inbox/codex_claude_changelog.md` for the latest semantic-gate and negative-eval baseline before modifying gates, fixtures, or eval schema.
+
+---
+
+## Quick Summary - Semantic Gates & Negative Eval (2026-02-06)
+
+Codex implemented semantic Gate A/B validation and promoted Gate E (sources manifest) to a core gate in `tesgi-advisory-os/tesgi/__main__.py`, added expected-fail eval support with `--include-negative`, updated `regression_suite.yml` to `path/expect/gate`, added 8 negative fixtures (`FAIL_B_001`..`FAIL_E_002`), updated positive fixtures (`CASE_0001`..`CASE_0006`) plus demo for new A/E requirements, regenerated manifests, and validated: `tesgi eval` PASS (6), `tesgi eval --include-negative` PASS (14 with 8 expected failures), `tesgi validate demo` PASS, `tesgi run demo` PASS; implementation committed in `tesgi-advisory-os` as `ba2704d`.
+
+---
+
+## Codex (GPT-5) - Governance + Canonical Skill Bundle v1.0 Locked (2026-02-06)
+
+### Completed
+
+- Ran governance and skills audit across TESGI Duo repositories and installed Codex skills.
+- Verified runtime controls in `tesgi-advisory-os`:
+  - `python -m tesgi validate demo` -> PASS (O/A/B/C/D/E)
+  - `python -m tesgi eval --include-negative` -> PASS (14 cases, 8 expected failures)
+  - `python 03_tools/plugins/list_allowlisted_plugins.py` -> PASS
+- Cleared untracked nested repo `INBOX/` directories per user instruction.
+
+### New artifacts (coordination root)
+
+- `Governance/TESGI_GOVERNANCE_SKILLS_AUDIT_2026-02-06.md`
+- `Governance/TESGI_CANONICAL_SKILL_BUNDLE_v1.0.md`
+- `Governance/TESGI_CANONICAL_SKILL_BUNDLE_v1.0.lock.json`
+
+### Lock baseline
+
+- Root coordination repo: `31243ea`
+- `tesgi-advisory-os`: `ba2704d`
+- `TESGI_Claudvisor`: `4709670`
+- Lock file includes per-skill SHA-256 and governance file SHA-256.
+
+### Coordination note for Claude
+
+Treat `Governance/TESGI_CANONICAL_SKILL_BUNDLE_v1.0.lock.json` as the canonical skill baseline for TESGI operations; any skill drift should be proposed as bundle v1.1 through explicit approval and re-lock.
