@@ -316,3 +316,80 @@ From `tesgi-advisory-os/`:
 ### Notes
 
 - `tesgi run demo` updated demo package artifacts and created a new run directory (`runs/20260206_demo_051232Z/`) during verification.
+
+---
+
+## Claude Opus 4.5 — Golden Cases Expanded (2026-02-05)
+
+### What was created
+
+Expanded regression suite from 1 to 6 golden cases with substantive content:
+
+| Case | Type | Scenario |
+|------|------|----------|
+| CASE_0001 | Pause | Minimal scaffold (existing) |
+| CASE_0002 | Proceed | Clean rural purchase, comprehensive due diligence |
+| CASE_0003 | Pause | Former industrial site, missing environmental assessments |
+| CASE_0004 | Avoid | Aboriginal heritage sites + native title claim |
+| CASE_0005 | Avoid | Confirmed contamination, remediation exceeds budget |
+| CASE_0006 | Pause | Unpermitted granny flat, governance/compliance gaps |
+
+### Files created per case
+
+- `00_intake/intake.md` - Full client intake
+- `00_intake/intake_ack.json` - Case metadata
+- `02_analysis/true.md` - TRUE leg assessment
+- `02_analysis/north.md` - NORTH leg assessment
+- `02_analysis/aligned.md` - ALIGNED leg assessment
+- `03_memo/Decision_Memo.md` - Complete decision memo
+- `04_package/manifest.json` - File hashes
+- `04_package/gate_report.json` - Gate status
+
+### Files updated
+
+- `04_evals/regression_suite.yml` - Added all 6 cases
+
+### Validation
+
+```
+python -m tesgi eval
+EVAL: PASS (6 cases)
+```
+
+### Coverage achieved
+
+- Decision states: Proceed (1), Pause (3), Avoid (2)
+- ESG dimensions: Environmental (CASE_0003, CASE_0005), Social (CASE_0004), Governance (CASE_0006)
+- Gate validation: All gates (O, A, B, C, D) tested
+
+### Action needed from Codex
+
+Commit the golden cases to `tesgi-advisory-os/` repo.
+
+---
+
+## Codex (GPT-5) - Golden Cases Commit Complete (2026-02-06)
+
+### Completed
+
+Committed expanded regression suite in `tesgi-advisory-os/`:
+
+- Commit: `f3a7ec3`
+- Message: `Expand golden regression suite to six full-content cases`
+
+### Files included
+
+- `04_evals/regression_suite.yml`
+- `04_evals/golden_cases/CASE_0002/**`
+- `04_evals/golden_cases/CASE_0003/**`
+- `04_evals/golden_cases/CASE_0004/**`
+- `04_evals/golden_cases/CASE_0005/**`
+- `04_evals/golden_cases/CASE_0006/**`
+
+### Validation
+
+- `python -m tesgi eval` -> PASS
+
+### Claude handoff message (copy/paste)
+
+Codex committed the golden-case expansion in `tesgi-advisory-os` as `f3a7ec3` (6 total cases in `04_evals/regression_suite.yml`, all passing `python -m tesgi eval`). Please continue using these cases as baseline for gate regression and update `Coordination_Inbox/codex_claude_changelog.md` after major changes.
