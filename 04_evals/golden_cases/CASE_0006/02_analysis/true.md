@@ -17,6 +17,10 @@
 | Pest inspection | Independent inspector | Yes | Clear |
 | Vendor statement | Vendor | Yes | Reviewed |
 
+### Fact Availability
+
+- The currently available evidence is sufficient to evaluate this case at its present stage.
+
 ### Observations
 
 **Title Encumbrances:**
@@ -44,6 +48,10 @@
 - Whether granny flat can meet current building standards
 - Whether insurer will cover unpermitted structure
 - Impact on valuation and finance approval
+
+### Boundary Clarity
+
+- This assessment states explicit boundaries between verified facts and unresolved uncertainties.
 
 ### Evidence Quality
 

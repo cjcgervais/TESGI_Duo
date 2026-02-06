@@ -14,10 +14,10 @@
       "size": 194
     },
     {
-      "mtime": 1770355582,
+      "mtime": 1770361640,
       "path": "02_analysis/true.md",
-      "sha256": "74d03c86ac54707b34bda23d496235e9c378417a0f23229e8d8748869493fe28",
-      "size": 2405
+      "sha256": "d03f1f437fb08c2f1f15c136693f91746dba3361b44a5a1051349b1afdb0ee49",
+      "size": 2651
     },
     {
       "mtime": 1770355582,
@@ -38,10 +38,10 @@
       "size": 5170
     },
     {
-      "mtime": 1770355742,
+      "mtime": 1770361732,
       "path": "04_package/manifest.json",
-      "sha256": "899b0ddf13d81d3295f62bc3d0e099564b78acf31d8096b32fdd10dbf7f81c68",
-      "size": 1499
+      "sha256": "8e459b6e1a60576549922119611fe33ece5f276a6971c5c2bb173315e3cddd72",
+      "size": 1690
     },
     {
       "mtime": 1770355742,
@@ -50,7 +50,7 @@
       "size": 69
     }
   ],
-  "generated_at": "2026-02-06T05:29:00Z",
-  "python_version": "3.13.0",
+  "generated_at": "2026-02-06T07:08:51Z",
+  "python_version": "3.13.7",
   "tesgi_version": "0.1.1"
 }

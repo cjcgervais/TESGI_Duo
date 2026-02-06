@@ -14,10 +14,10 @@
       "size": 170
     },
     {
-      "mtime": 1770355194,
+      "mtime": 1770361640,
       "path": "02_analysis/true.md",
-      "sha256": "a5e1ba2de98b3e73e2756a5ca72be231769542dbb42c169afc408305b5954ec5",
-      "size": 1655
+      "sha256": "022c28b67d0395649680217f60cb70f3e89968be6ca78dd7badc4864061627e1",
+      "size": 1901
     },
     {
       "mtime": 1770355194,
@@ -26,10 +26,10 @@
       "size": 2182
     },
     {
-      "mtime": 1770355196,
+      "mtime": 1770361768,
       "path": "02_analysis/aligned.md",
-      "sha256": "620f76c27d3aac90bfb5ed2a49d71bc16884183a92716d7f2e628e69aae8b46d",
-      "size": 2336
+      "sha256": "a39450f2f78546e34fd959834509dece89ad90d2b938e1dead986127053aa553",
+      "size": 2346
     },
     {
       "mtime": 1770355666,
@@ -38,10 +38,10 @@
       "size": 4033
     },
     {
-      "mtime": 1770355742,
+      "mtime": 1770361772,
       "path": "04_package/manifest.json",
-      "sha256": "e398c1bfb20fa373cc0ebd1e10e88810cf25275e5cd8f69783c1e87aa23feb94",
-      "size": 1499
+      "sha256": "41e0ae86488a7961b19575850ad7087ef7a4e9c31af2bc898821252bd1c76569",
+      "size": 1690
     },
     {
       "mtime": 1770355742,
@@ -50,7 +50,7 @@
       "size": 69
     }
   ],
-  "generated_at": "2026-02-06T05:29:00Z",
-  "python_version": "3.13.0",
+  "generated_at": "2026-02-06T07:09:31Z",
+  "python_version": "3.13.7",
   "tesgi_version": "0.1.1"
 }

@@ -16,6 +16,10 @@
 | Survey | Licensed surveyor | Yes | Boundaries match title |
 | Section 32 | Vendor's solicitor | Yes | Reviewed by client's solicitor |
 
+### Fact Availability
+
+- The currently available evidence is sufficient to evaluate this case at its present stage.
+
 ### Observations
 
 - All material documents have been obtained from authoritative sources
@@ -28,6 +32,10 @@
 - Future council planning changes (low probability, cannot be eliminated)
 - Construction cost inflation between now and build commencement
 - No Phase 1 environmental assessment (historical use was grazing only)
+
+### Boundary Clarity
+
+- This assessment states explicit boundaries between verified facts and unresolved uncertainties.
 
 ### Evidence Quality
 

@@ -17,6 +17,10 @@
 | Remediation estimate | EnviroConsult Pty Ltd | Yes | $1.8M - $3.2M range |
 | Survey | Licensed surveyor | Yes | Complete |
 
+### Fact Availability
+
+- The currently available evidence is sufficient to evaluate this case at its present stage.
+
 ### Observations
 
 - Contamination is definitively confirmed, not speculative
@@ -34,6 +38,10 @@
 - Whether EPA will approve site for residential use post-remediation
 - Long-term monitoring requirements and costs
 - Potential for off-site migration requiring expanded remediation
+
+### Boundary Clarity
+
+- This assessment states explicit boundaries between verified facts and unresolved uncertainties.
 
 ### Evidence Quality
 

@@ -23,6 +23,40 @@ ALLOWLIST_FILES = (
     "04_package/gate_report.json",
 )
 
+KERNEL_REQUIREMENTS = {
+    "true.md": {
+        "section_groups": [
+            ["Source Verification", "Sources"],
+            ["Fact Availability", "Facts"],
+            ["Boundary Clarity", "Boundaries"],
+        ],
+        "require_status": True,
+    },
+    "north.md": {
+        "section_groups": [
+            ["Regulatory", "Planning"],
+            ["Timeline", "Horizon", "Context"],
+        ],
+        "require_status": True,
+    },
+    "aligned.md": {
+        "section_groups": [
+            ["Objectives"],
+            ["Constraints", "Constraint", "Assumptions", "Structure"],
+        ],
+        "require_status": True,
+    },
+}
+
+BLOCKER_PATTERNS = [
+    r"Status:\s*FAIL",
+    r"(?i)unbounded\s+uncertainty",
+    r"(?i)cannot\s+be\s+verified",
+    r"(?i)missing\s+required",
+    r"(?i)fundamental\s+misalignment",
+    r"(?i)critical\s+gap",
+]
+
 
 class GateResult:
     def __init__(self, gate_id, name, status, detail):
@@ -220,44 +254,46 @@ def extract_section(content, section_name):
     return "\n".join(lines[start:end]).strip()
 
 
-def parse_decision_states(content):
+def parse_decision_state(content):
     section = extract_section(content, "Decision State")
-    if not section:
-        return []
     selected = []
-    for raw_line in section.splitlines():
-        line = normalize_text(raw_line).strip()
-        line_l = line.lower()
-        if not line_l:
-            continue
-        checked = ("[x]" in line_l) or ("\u2611" in line)
-        if not checked:
-            continue
-        if "proceed" in line_l:
-            selected.append("Proceed")
-        if "pause" in line_l:
-            selected.append("Pause")
-        if "avoid" in line_l or "walk away" in line_l:
-            selected.append("Avoid")
-    unique = []
-    for state in ["Proceed", "Pause", "Avoid"]:
-        if state in selected:
-            unique.append(state)
-    if unique:
-        return unique
+    if section:
+        for raw_line in section.splitlines():
+            line = normalize_text(raw_line).strip()
+            line_l = line.lower()
+            if not line_l:
+                continue
+            checked = ("[x]" in line_l) or ("\u2611" in line)
+            if not checked:
+                continue
+            if "proceed" in line_l:
+                selected.append("Proceed")
+            if "pause" in line_l:
+                selected.append("Pause")
+            if "avoid" in line_l or "walk away" in line_l:
+                selected.append("Avoid")
     explicit = re.search(
         r"decision\s*state\s*:\s*(proceed|pause|avoid|walk\s*away)",
         normalize_text(content),
         flags=re.IGNORECASE,
     )
-    if not explicit:
-        return []
-    value = explicit.group(1).lower().replace(" ", "")
-    if value in {"avoid", "walkaway"}:
-        return ["Avoid"]
-    if value == "pause":
-        return ["Pause"]
-    return ["Proceed"]
+    if explicit:
+        value = explicit.group(1).lower().replace(" ", "")
+        if value in {"avoid", "walkaway"}:
+            selected.append("Avoid")
+        elif value == "pause":
+            selected.append("Pause")
+        else:
+            selected.append("Proceed")
+    unique = []
+    for state in ["Proceed", "Pause", "Avoid"]:
+        if state in selected:
+            unique.append(state)
+    if not unique:
+        return None
+    if len(unique) > 1:
+        return "Multiple"
+    return unique[0]
 
 
 def section_has_list_items(content, section_name):
@@ -289,34 +325,52 @@ def section_has_content(content, section_name):
     return False
 
 
-def proceed_blockers(base_dir):
+def kernel_has_blockers(base_dir):
+    analysis_dir = base_dir / "02_analysis"
+    if not analysis_dir.is_dir():
+        return ["02_analysis missing"]
     blockers = []
-    marker_phrases = [
-        "unbounded uncertainty",
-        "missing required fact",
-        "missing required facts",
-        "required facts missing",
-        "critical gaps",
-    ]
-    for leg in ["true", "north", "aligned"]:
-        leg_path = base_dir / "02_analysis" / f"{leg}.md"
-        if not leg_path.is_file():
-            blockers.append(f"{leg}.md missing")
-            continue
-        content = leg_path.read_text(encoding="utf-8")
-        content_n = normalize_text(content)
-        status_match = re.search(
-            r"^\s*status\s*:\s*(pass|pause|fail)\b",
-            content_n,
-            flags=re.IGNORECASE | re.MULTILINE,
-        )
-        if status_match and status_match.group(1).lower() != "pass":
-            blockers.append(f"{leg}.md status {status_match.group(1).lower()}")
-        for phrase in marker_phrases:
-            if phrase_present(content_n, phrase):
-                blockers.append(f"{leg}.md contains '{phrase}'")
+    for path in sorted(analysis_dir.glob("*.md")):
+        content = normalize_text(path.read_text(encoding="utf-8"))
+        for pattern in BLOCKER_PATTERNS:
+            if re.search(pattern, content, flags=re.IGNORECASE):
+                blockers.append(f"{path.name} matched {pattern}")
                 break
     return blockers
+
+
+def file_has_heading_alias(content, aliases):
+    for line in content.splitlines():
+        line_l = line.strip().lower()
+        if not line_l.startswith("#"):
+            continue
+        for alias in aliases:
+            if alias.lower() in line_l:
+                return True
+    return False
+
+
+def status_line_present(content):
+    for line in content.splitlines():
+        if "status:" in line.lower():
+            return True
+    return False
+
+
+def validate_kernel_content(filepath, required_sections):
+    if not filepath.is_file():
+        return [f"{filepath.name} missing"]
+    content = filepath.read_text(encoding="utf-8")
+    errors = []
+    section_groups = required_sections.get("section_groups", [])
+    for aliases in section_groups:
+        if not file_has_heading_alias(content, aliases):
+            errors.append(
+                f"{filepath.name} missing section ({' / '.join(aliases)})"
+            )
+    if required_sections.get("require_status", False) and not status_line_present(content):
+        errors.append(f"{filepath.name} missing Status line")
+    return errors
 
 
 def gate_orchestration(base_dir):
@@ -339,33 +393,16 @@ def gate_orchestration(base_dir):
     return GateResult("O", "Orchestration state order", True, f"OK ({status.stage})")
 
 
-def gate_kernel():
-    kernel_path = ROOT / "00_governance" / "KERNEL.md"
-    if not kernel_path.is_file():
-        return GateResult("A", "Kernel completeness", False, "KERNEL.md missing")
-    required = ["TRUE", "NORTH", "ALIGNED"]
-    positions = {}
-    for idx, line in enumerate(kernel_path.read_text(encoding="utf-8").splitlines()):
-        line = line.strip()
-        if line.startswith("## "):
-            title = line[3:].strip().upper()
-            if title in required and title not in positions:
-                positions[title] = idx
-    missing = [r for r in required if r not in positions]
-    if missing:
-        return GateResult(
-            "A",
-            "Kernel completeness",
-            False,
-            "Missing sections: " + ", ".join(missing),
-        )
-    if not (positions["TRUE"] < positions["NORTH"] < positions["ALIGNED"]):
-        return GateResult(
-            "A",
-            "Kernel completeness",
-            False,
-            "Section order must be TRUE, NORTH, ALIGNED",
-        )
+def gate_kernel(base_dir):
+    analysis_dir = base_dir / "02_analysis"
+    if not analysis_dir.is_dir():
+        return GateResult("A", "Kernel completeness", False, "02_analysis missing")
+    failures = []
+    for filename, requirements in KERNEL_REQUIREMENTS.items():
+        filepath = analysis_dir / filename
+        failures.extend(validate_kernel_content(filepath, requirements))
+    if failures:
+        return GateResult("A", "Kernel completeness", False, "; ".join(failures))
     return GateResult("A", "Kernel completeness", True, "OK")
 
 
@@ -381,13 +418,13 @@ def gate_decision_state(base_dir):
         if missing:
             failures.append(f"{memo.name} missing {', '.join(missing)}")
             continue
-        states = parse_decision_states(content)
-        if len(states) != 1:
-            failures.append(
-                f"{memo.name} must select exactly one decision state (found {len(states)})"
-            )
+        state = parse_decision_state(content)
+        if state is None:
+            failures.append(f"{memo.name} has no decision state marked")
             continue
-        state = states[0]
+        if state == "Multiple":
+            failures.append(f"{memo.name} has multiple decision states marked")
+            continue
         if state == "Pause" and not section_has_list_items(content, "Missing Information List"):
             failures.append(
                 f"{memo.name} Pause requires 'Missing Information List' with list items"
@@ -395,7 +432,7 @@ def gate_decision_state(base_dir):
         if state == "Avoid" and not section_has_content(content, "Rationale Summary"):
             failures.append(f"{memo.name} Avoid requires non-empty 'Rationale Summary'")
         if state == "Proceed":
-            blockers = proceed_blockers(base_dir)
+            blockers = kernel_has_blockers(base_dir)
             if blockers:
                 failures.append(
                     f"{memo.name} Proceed invalid due to kernel blockers: {', '.join(blockers)}"
@@ -514,6 +551,31 @@ def gate_manifest(base_dir):
     return GateResult("D", "Packaging integrity", True, "OK")
 
 
+def gate_sources(base_dir):
+    manifest_path = base_dir / "01_sources" / "sources_manifest.json"
+    if not manifest_path.is_file():
+        return GateResult("E", "Sources manifest", False, "01_sources/sources_manifest.json missing")
+    try:
+        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return GateResult("E", "Sources manifest", False, f"sources_manifest.json invalid: {exc}")
+    sources = payload.get("sources")
+    if not isinstance(sources, list) or not sources:
+        return GateResult("E", "Sources manifest", False, "sources must contain at least one entry")
+    for idx, entry in enumerate(sources, start=1):
+        if not isinstance(entry, dict):
+            return GateResult("E", "Sources manifest", False, f"source {idx} must be an object")
+        missing = [field for field in ["id", "type", "tier", "description"] if not entry.get(field)]
+        if missing:
+            return GateResult(
+                "E",
+                "Sources manifest",
+                False,
+                f"source {idx} missing required fields: {', '.join(missing)}",
+            )
+    return GateResult("E", "Sources manifest", True, "OK")
+
+
 def plugin_runtime_context(slug, base_dir):
     return {
         "slug": slug,
@@ -525,10 +587,11 @@ def plugin_runtime_context(slug, base_dir):
 def run_gates(base_dir, slug, plugin_manager=None):
     results = [
         gate_orchestration(base_dir),
-        gate_kernel(),
+        gate_kernel(base_dir),
         gate_decision_state(base_dir),
         gate_language(base_dir),
         gate_manifest(base_dir),
+        gate_sources(base_dir),
     ]
     if plugin_manager is not None:
         context = plugin_runtime_context(slug, base_dir)
@@ -591,7 +654,7 @@ def cmd_init_client(slug):
     print(f"Initialized client: {slug}")
 
 
-def cmd_validate(slug, base_dir=None, plugin_manager=None):
+def cmd_validate(slug, base_dir=None, plugin_manager=None, quiet=False):
     if base_dir is None:
         validate_slug(slug)
         base_dir = slug_path(slug)
@@ -602,13 +665,16 @@ def cmd_validate(slug, base_dir=None, plugin_manager=None):
     context = plugin_runtime_context(slug, base_dir)
     plugin_manager.workflow_before_stage("validate", context)
     results = run_gates(base_dir, slug=slug, plugin_manager=plugin_manager)
-    print_results(results)
+    if not quiet:
+        print_results(results)
     exit_code = 1
     if all(r.status for r in results):
-        print("VALIDATION: PASS")
+        if not quiet:
+            print("VALIDATION: PASS")
         exit_code = 0
     else:
-        print("VALIDATION: FAIL")
+        if not quiet:
+            print("VALIDATION: FAIL")
     plugin_manager.workflow_after_stage(
         "validate",
         {
@@ -697,51 +763,170 @@ def cmd_run(slug, plugin_manager=None):
     )
 
 
-def cmd_eval(plugin_manager=None):
+def parse_eval_suite(path):
+    if not path.is_file():
+        raise RuntimeError(f"Regression suite not found: {path}")
+    lines = path.read_text(encoding="utf-8").splitlines()
+    in_cases = False
+    current = None
+    cases = []
+    for raw in lines:
+        stripped = raw.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        if not in_cases:
+            if stripped == "cases:":
+                in_cases = True
+            continue
+        if raw.lstrip().startswith("- "):
+            if current is not None:
+                cases.append(current)
+            current = {"path": "", "expect": "pass", "gate": None}
+            value = raw.lstrip()[2:].strip()
+            if not value:
+                continue
+            if ":" in value:
+                key, item_value = value.split(":", 1)
+                key = key.strip()
+                item_value = item_value.strip()
+                if key == "path":
+                    current["path"] = item_value
+                elif key == "expect":
+                    current["expect"] = item_value.lower()
+                elif key == "gate":
+                    current["gate"] = item_value.upper()
+            else:
+                current["path"] = value
+            continue
+        if current is None or ":" not in stripped:
+            continue
+        key, value = stripped.split(":", 1)
+        key = key.strip()
+        value = value.strip()
+        if key == "path":
+            current["path"] = value
+        elif key == "expect":
+            current["expect"] = value.lower()
+        elif key == "gate":
+            current["gate"] = value.upper()
+    if current is not None:
+        cases.append(current)
+    normalized = []
+    for idx, case in enumerate(cases, start=1):
+        case_path = str(case.get("path", "")).strip()
+        if not case_path:
+            raise RuntimeError(f"Case #{idx} is missing path in regression_suite.yml")
+        expect = str(case.get("expect", "pass")).strip().lower()
+        if expect not in {"pass", "fail"}:
+            raise RuntimeError(f"Case {case_path} has invalid expect value: {expect}")
+        gate = case.get("gate")
+        gate = str(gate).strip().upper() if gate else None
+        normalized.append({"path": case_path, "expect": expect, "gate": gate})
+    return normalized
+
+
+def first_failed_gate(results):
+    for result in results:
+        if not result.status:
+            return result.gate_id
+    return None
+
+
+def cmd_eval(plugin_manager=None, include_negative=False):
     plugin_manager = plugin_manager or PluginManager()
     suite_path = ROOT / "04_evals" / "regression_suite.yml"
-    data = parse_simple_yaml(suite_path)
-    case_paths = data.get("cases") or []
-    if not case_paths:
-        raise RuntimeError("No cases defined in regression_suite.yml")
-    plugin_manager.workflow_before_stage("eval", {"suite_path": suite_path.as_posix()})
+    cases = parse_eval_suite(suite_path)
+    selected_cases = []
+    for case in cases:
+        if case["expect"] == "fail" and not include_negative:
+            continue
+        selected_cases.append(case)
+    if not selected_cases:
+        raise RuntimeError("No cases selected from regression_suite.yml")
+    plugin_manager.workflow_before_stage(
+        "eval",
+        {
+            "suite_path": suite_path.as_posix(),
+            "include_negative": include_negative,
+        },
+    )
     failures = 0
-    for case_path in case_paths:
+    expected_failures = 0
+    for case in selected_cases:
+        case_path = case["path"]
         base_dir = ROOT / case_path
         slug = base_dir.name
+        expect = case["expect"]
+        expected_gate = case["gate"]
         context = plugin_runtime_context(slug, base_dir)
         plugin_manager.eval_before_case(case_path, slug, context)
         if not base_dir.is_dir():
-            print(f"EVAL SKIP: {case_path} not found")
+            print(f"EVAL CASE FAIL: {case_path} (missing directory)")
             failures += 1
             plugin_manager.eval_after_case(case_path, slug, 1, {**context, "status": "missing"})
             continue
-        exit_code, _results = cmd_validate(slug, base_dir=base_dir, plugin_manager=plugin_manager)
+        exit_code, results = cmd_validate(
+            slug,
+            base_dir=base_dir,
+            plugin_manager=plugin_manager,
+            quiet=True,
+        )
+        failed_gate = first_failed_gate(results)
+        status = "pass" if exit_code == 0 else "fail"
         plugin_manager.eval_after_case(
             case_path,
             slug,
             exit_code,
-            {**context, "status": "pass" if exit_code == 0 else "fail"},
+            {**context, "status": status, "failed_gate": failed_gate or ""},
         )
-        if exit_code != 0:
-            failures += 1
+        if expect == "pass":
+            if exit_code == 0:
+                print(f"EVAL CASE PASS: {case_path}")
+            else:
+                print(
+                    f"EVAL CASE FAIL: {case_path} expected pass but failed at gate {failed_gate}"
+                )
+                failures += 1
+            continue
+        gate_ok = expected_gate is None or expected_gate == failed_gate
+        if exit_code != 0 and gate_ok:
+            expected_failures += 1
+            gate_detail = f" gate {failed_gate}" if failed_gate else ""
+            print(f"EVAL CASE PASS: {case_path} (expected{gate_detail})")
+            continue
+        if exit_code == 0:
+            print(f"EVAL CASE FAIL: {case_path} expected failure but passed")
+        else:
+            print(
+                f"EVAL CASE FAIL: {case_path} expected gate {expected_gate} but failed at {failed_gate}"
+            )
+        failures += 1
     if failures:
         print(f"EVAL: FAIL ({failures} case(s))")
         plugin_manager.workflow_after_stage(
             "eval",
             {
                 "suite_path": suite_path.as_posix(),
+                "include_negative": include_negative,
                 "failures": failures,
+                "expected_failures": expected_failures,
                 "result": "fail",
             },
         )
         sys.exit(1)
-    print("EVAL: PASS")
+    summary = (
+        f"EVAL: PASS ({len(selected_cases)} case(s), {expected_failures} expected failures)"
+        if include_negative
+        else f"EVAL: PASS ({len(selected_cases)} case(s))"
+    )
+    print(summary)
     plugin_manager.workflow_after_stage(
         "eval",
         {
             "suite_path": suite_path.as_posix(),
+            "include_negative": include_negative,
             "failures": 0,
+            "expected_failures": expected_failures,
             "result": "pass",
         },
     )
@@ -788,6 +973,11 @@ def build_parser():
         "--plugins",
         help="Comma-separated allowlisted plugin ids, or 'all'",
     )
+    eval_cmd.add_argument(
+        "--include-negative",
+        action="store_true",
+        help="Include cases marked expect: fail in regression_suite.yml",
+    )
     return parser
 
 
@@ -813,7 +1003,10 @@ def main():
         cmd_run(args.slug, plugin_manager=plugin_manager)
         return
     if args.command == "eval":
-        cmd_eval(plugin_manager=plugin_manager)
+        cmd_eval(
+            plugin_manager=plugin_manager,
+            include_negative=getattr(args, "include_negative", False),
+        )
         return
 
 

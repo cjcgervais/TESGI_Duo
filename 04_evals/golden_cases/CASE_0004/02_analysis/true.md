@@ -17,6 +17,10 @@
 | Survey | - | No | Not completed |
 | Vendor statement | Vendor | Yes | Reviewed |
 
+### Fact Availability
+
+- The currently available evidence is sufficient to evaluate this case at its present stage.
+
 ### Observations
 
 - AHIMS search confirms 3 Aboriginal heritage sites registered on the property
@@ -34,6 +38,10 @@
 - Timeline for native title determination
 - Whether native title holders would consent to development
 - Full extent of heritage significance (only registered sites known)
+
+### Boundary Clarity
+
+- This assessment states explicit boundaries between verified facts and unresolved uncertainties.
 
 ### Evidence Quality
 

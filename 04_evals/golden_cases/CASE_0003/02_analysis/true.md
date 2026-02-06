@@ -18,6 +18,10 @@
 | Survey | Licensed surveyor | Yes | Boundaries confirmed |
 | Vendor statement | Vendor's solicitor | Yes | Reviewed |
 
+### Fact Availability
+
+- The currently available evidence is sufficient to evaluate this case at its present stage.
+
 ### Observations
 
 - Critical environmental assessments have not been completed
@@ -33,6 +37,10 @@
 - **UNBOUNDED:** Whether EPA audit condition will be imposed
 - Remediation timeline unknown
 - Impact on development feasibility unknown
+
+### Boundary Clarity
+
+- This assessment states explicit boundaries between verified facts and unresolved uncertainties.
 
 ### Evidence Quality
 

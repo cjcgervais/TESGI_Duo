@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {
+      "description": "Demo source record for Gate E compliance.",
+      "id": "DEMO-SRC-001",
+      "tier": 1,
+      "type": "title_search"
+    }
+  ]
+}

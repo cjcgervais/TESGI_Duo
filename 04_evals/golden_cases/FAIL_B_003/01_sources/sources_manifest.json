@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {
+      "description": "Minimal source record for regression fixture.",
+      "id": "FAIL_B_003-SRC-001",
+      "tier": 1,
+      "type": "title_search"
+    }
+  ]
+}

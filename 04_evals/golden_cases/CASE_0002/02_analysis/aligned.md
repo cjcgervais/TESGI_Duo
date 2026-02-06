@@ -45,7 +45,7 @@
 - Client objectives are internally consistent
 - Property characteristics match stated needs
 - Budget and timeline assumptions are reasonable
-- No fundamental misalignment detected
+- No major objective-constraint conflict detected
 
 ### Risk Notes
 

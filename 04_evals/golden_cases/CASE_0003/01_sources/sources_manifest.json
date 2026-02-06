@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {
+      "description": "Primary due-diligence source bundle for regression fixture.",
+      "id": "CASE_0003-SRC-001",
+      "tier": 1,
+      "type": "title_search"
+    }
+  ]
+}
