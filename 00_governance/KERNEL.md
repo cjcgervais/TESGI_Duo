@@ -16,3 +16,7 @@ This file is normative for TESGI Advisory OS. Invalid states are unbuildable.
 - Boundaries and language rules are enforced.
 - Changes follow the defined control tiers.
 - Packaging preserves integrity and traceability.
+
+## Governance References
+- ADR index: `00_governance/ADR/README.md`
+- Bootstrap ADR: `00_governance/ADR/ADR_0001_Governed_Self_Improvement.md`
