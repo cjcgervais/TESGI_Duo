@@ -368,6 +368,69 @@ Commit the golden cases to `tesgi-advisory-os/` repo.
 
 ---
 
+## Claude Opus 4.5 — Source Provenance Tracking (2026-02-05)
+
+### What was created
+
+Evidence Notary skill for source provenance and uncertainty mapping:
+
+```
+TESGI_Claudvisor/
+├── skills/evidence-notary/
+│   ├── SKILL.md                           # Main skill definition
+│   └── references/
+│       ├── source-types.md                # 4-tier source classification
+│       └── uncertainty-mapping.md         # Uncertainty methodology
+└── .claude/commands/
+    └── sources.md                         # /project:sources command
+```
+
+### Key Features
+
+1. **Source Classification (4 Tiers)**
+   - Tier 1: Authoritative primary (government registers, professional reports)
+   - Tier 2: Professional secondary (valuations, inspections)
+   - Tier 3: Informal (vendor/agent claims)
+   - Tier 4: Unverified/missing
+
+2. **Sources Manifest Schema**
+   - `sources_manifest.json` with full provenance metadata
+   - Claim-to-source mapping
+   - Uncertainty map with impact classification
+   - Missing source recommendations
+
+3. **Uncertainty Categories**
+   - Critical: Could fundamentally change decision
+   - Material: Significantly affects value/risk
+   - Minor: Limited decision impact
+
+4. **TRUE Integration**
+   - Source citation format: `[SRC-XXX: Source Name]`
+   - Evidence quality assessment
+   - Gap disclosure requirements
+
+### Files updated
+
+- `CLAUDE.md` — Added evidence-notary skill and /project:sources command
+- `skills/decision-kernel/references/true-assessment.md` — Added source citation guidance
+
+### Workflow integration
+
+```
+/project:intake → /project:sources → /project:esg → /project:analyze → /project:memo
+                        │                                    │
+                        └────────────────────────────────────┘
+                        Sources manifest informs TRUE assessment
+```
+
+### Action needed from Codex
+
+1. Add `sources/sources_manifest.json` to adapter mapping (sync between workspaces)
+2. Commit evidence-notary changes to `TESGI_Claudvisor/` repo
+3. (Optional) Add source manifest validation to Gate A or new Gate F
+
+---
+
 ## Codex (GPT-5) - Golden Cases Commit Complete (2026-02-06)
 
 ### Completed
@@ -393,3 +456,68 @@ Committed expanded regression suite in `tesgi-advisory-os/`:
 ### Claude handoff message (copy/paste)
 
 Codex committed the golden-case expansion in `tesgi-advisory-os` as `f3a7ec3` (6 total cases in `04_evals/regression_suite.yml`, all passing `python -m tesgi eval`). Please continue using these cases as baseline for gate regression and update `Coordination_Inbox/codex_claude_changelog.md` after major changes.
+
+---
+
+## Codex (GPT-5) - Plugin Interfaces Implemented (2026-02-06)
+
+### Completed
+
+Implemented controlled plugin extensibility in `tesgi-advisory-os` and committed as:
+
+- `9b81d14` - Add allowlisted plugin interfaces and per-run plugin hooks
+
+### Deliverables
+
+- `tesgi-advisory-os/tesgi/plugins/interfaces.py`
+  - Plugin contracts for:
+    - `workflow_plugin`
+    - `policy_plugin`
+    - `llm_gateway_plugin`
+    - `telemetry_plugin`
+    - `eval_plugin`
+
+- `tesgi-advisory-os/tesgi/plugins/manager.py`
+  - Allowlist loader
+  - Plugin instantiation
+  - Type checks
+  - Version pin checks
+  - Runtime dispatch hooks
+
+- `tesgi-advisory-os/tesgi/plugins/reference.py`
+  - Reference implementations:
+    - `NoOpWorkflowPlugin`
+    - `NoOpPolicyPlugin`
+    - `RequireSourcesManifestPolicyPlugin`
+    - `NoOpLLMGatewayPlugin`
+    - `JsonlTelemetryPlugin`
+    - `NoOpEvalPlugin`
+
+- `tesgi-advisory-os/00_governance/PLUGIN_ALLOWLIST.json`
+  - Explicit allowlist entries with module/class/type/version pinning
+
+- `tesgi-advisory-os/03_tools/plugins/README.md`
+  - Contract and usage documentation
+
+- `tesgi-advisory-os/03_tools/plugins/list_allowlisted_plugins.py`
+  - Utility to print allowlisted plugin specs
+
+- `tesgi-advisory-os/tesgi/__main__.py`
+  - `--plugins` support on `validate`, `run`, `eval`
+  - Plugin hooks integrated around validate/run/eval stages
+  - Policy plugin findings appended as additional gate results
+  - Core gates remain mandatory regardless of plugin set
+
+### Validation
+
+From `tesgi-advisory-os/`:
+
+- `python -m tesgi validate demo` -> PASS
+- `python -m tesgi eval` -> PASS
+- `python -m tesgi eval --plugins noop_workflow,noop_policy,noop_eval,noop_llm` -> PASS
+- `python 03_tools/plugins/list_allowlisted_plugins.py` -> PASS
+- `python -m tesgi validate demo --plugins require_sources_manifest` -> FAIL (expected strict policy)
+
+### Claude handoff message (copy/paste)
+
+Codex implemented plugin interfaces with allowlist + version pinning in `tesgi-advisory-os` commit `9b81d14`. `validate/run/eval` now accept `--plugins`, with core gates still enforced regardless of plugin set. Please reference `00_governance/PLUGIN_ALLOWLIST.json` and `03_tools/plugins/README.md` for integration details.
