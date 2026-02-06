@@ -247,3 +247,72 @@ Both repos now have git history:
 - Root coordination repo: clean
 - `tesgi-advisory-os/`: only untracked `INBOX/`
 - `TESGI_Claudvisor/`: only untracked `INBOX/`
+
+---
+
+## Codex (GPT-5) - Orchestration State Machine Implemented (2026-02-06)
+
+### Scope completed
+
+Implemented explicit orchestration state machine wiring in `tesgi-advisory-os` with stage contracts and run-time enforcement.
+
+### New modules
+
+- `tesgi-advisory-os/tesgi/orchestration/states.py`
+  - Canonical 9-stage order:
+    - `intake_ready`
+    - `true_complete`
+    - `north_complete`
+    - `aligned_complete`
+    - `decision_synthesized`
+    - `memo_built`
+    - `boundary_passed`
+    - `package_passed`
+    - `eval_passed`
+
+- `tesgi-advisory-os/tesgi/orchestration/contracts.py`
+  - Stage contracts (`required_files`, `required_gates`)
+  - JSON-schema definitions (`STAGE_SCHEMAS`) for stage payload validation contracts
+
+- `tesgi-advisory-os/tesgi/orchestration/engine.py`
+  - Stage-order validations including:
+    - block `north` without `true`
+    - block `aligned` without `north`
+  - Stage inference and package authorization checks
+
+- `tesgi-advisory-os/tesgi/orchestration/__init__.py`
+
+### Deliverable-aligned tooling paths
+
+- `tesgi-advisory-os/03_tools/orchestration/states.py`
+  - Prints stage graph + contract requirements
+- `tesgi-advisory-os/03_tools/orchestration/engine.py`
+  - Reports orchestration status for a slug (`stage`, `violations`, known artifacts)
+
+### CLI integration changes
+
+Updated `tesgi-advisory-os/tesgi/__main__.py`:
+
+1. Added orchestration gate (`O`) in `run_gates(...)`
+   - Name: `Orchestration state order`
+   - Fails when stage-order dependencies are violated
+
+2. Updated `tesgi run <slug>` packaging behavior:
+   - Still writes manifest + gate report for diagnostics
+   - **Blocks run artifact packaging (`runs/...`) unless all gates pass**
+   - Enforces package-stage authorization through orchestration engine
+
+### Validation executed
+
+From `tesgi-advisory-os/`:
+
+- `python -m tesgi --help` -> PASS
+- `python -m tesgi validate demo` -> PASS (includes new `O` gate)
+- `python -m tesgi eval` -> PASS
+- `python 03_tools/orchestration/states.py` -> PASS
+- `python 03_tools/orchestration/engine.py demo` -> PASS
+- `python -m tesgi run demo` -> PASS
+
+### Notes
+
+- `tesgi run demo` updated demo package artifacts and created a new run directory (`runs/20260206_demo_051232Z/`) during verification.
