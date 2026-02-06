@@ -665,3 +665,22 @@ Codex implemented semantic Gate A/B validation and promoted Gate E (sources mani
 ### Coordination note for Claude
 
 Treat `Governance/TESGI_CANONICAL_SKILL_BUNDLE_v1.0.lock.json` as the canonical skill baseline for TESGI operations; any skill drift should be proposed as bundle v1.1 through explicit approval and re-lock.
+
+---
+
+## Codex (GPT-5) - Full Governance/Orchestration Audit + Amendment Plan (2026-02-06)
+
+### Completed
+
+- Pushed commit `5337486` to `origin/master`.
+- Executed full audit pass across governance + orchestration architecture in `tesgi-advisory-os` and workflow docs in `TESGI_Claudvisor`.
+- Re-ran verification matrix (`validate`, `eval`, `eval --include-negative`, plugins, adapters, orchestration tools, and `run`).
+
+### New report
+
+- `Governance/TESGI_FULL_AUDIT_GOVERNANCE_ORCHESTRATION_2026-02-06.md`
+
+### Key result
+
+- System is operationally stable (all tested commands pass) but still has spec parity gaps.
+- Report includes severity-ranked findings and phased amendment plan (Phase 0 through Phase 4).
