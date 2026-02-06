@@ -12,6 +12,7 @@ This file defines file-level mapping for the Duo Advisory adapter scripts.
 | `clients/<client_id>/analysis/true.md` | `02_client_work/<slug>/02_analysis/true.md` |
 | `clients/<client_id>/analysis/north.md` | `02_client_work/<slug>/02_analysis/north.md` |
 | `clients/<client_id>/analysis/aligned.md` | `02_client_work/<slug>/02_analysis/aligned.md` |
+| `clients/<client_id>/analysis/esg.md` | `02_client_work/<slug>/02_analysis/esg.md` |
 | `clients/<client_id>/memo.md` | `02_client_work/<slug>/03_memo/Decision_Memo.md` |
 | `clients/<client_id>/sources/**/*` | `02_client_work/<slug>/01_sources/**/*` |
 
@@ -32,6 +33,7 @@ Additional generated file:
 | `02_client_work/<slug>/02_analysis/true.md` | `clients/<client_id>/analysis/true.md` |
 | `02_client_work/<slug>/02_analysis/north.md` | `clients/<client_id>/analysis/north.md` |
 | `02_client_work/<slug>/02_analysis/aligned.md` | `clients/<client_id>/analysis/aligned.md` |
+| `02_client_work/<slug>/02_analysis/esg.md` | `clients/<client_id>/analysis/esg.md` |
 | `02_client_work/<slug>/03_memo/Decision_Memo.md` | `clients/<client_id>/memo.md` |
 | `02_client_work/<slug>/01_sources/**/*` | `clients/<client_id>/sources/**/*` |
 

@@ -8,6 +8,7 @@ Claude source layout:
     analysis/true.md
     analysis/north.md
     analysis/aligned.md
+    analysis/esg.md
     memo.md
     sources/
 
@@ -19,6 +20,7 @@ TESGI target layout:
     02_analysis/true.md
     02_analysis/north.md
     02_analysis/aligned.md
+    02_analysis/esg.md
     03_memo/Decision_Memo.md
 """
 
@@ -156,6 +158,9 @@ def main() -> int:
         ),
         "aligned": copy_if_exists(
             src / "analysis" / "aligned.md", dst / "02_analysis" / "aligned.md"
+        ),
+        "esg": copy_if_exists(
+            src / "analysis" / "esg.md", dst / "02_analysis" / "esg.md"
         ),
         "memo": copy_if_exists(src / "memo.md", dst / "03_memo" / "Decision_Memo.md"),
     }
