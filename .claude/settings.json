@@ -1,0 +1,46 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(artifacts/*)",
+      "Read(skills/**/*)",
+      "Read(clients/**/*)",
+      "Write(clients/**/*)",
+      "Write(outputs/*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:clients/*)"
+    ],
+    "deny": [
+      "Write(artifacts/bridge.md)",
+      "Write(CLAUDE.md)",
+      "Bash(rm:-rf)",
+      "Bash(git:push --force)"
+    ]
+  },
+  "context": {
+    "include": [
+      "CLAUDE.md",
+      "artifacts/bridge.md"
+    ]
+  },
+  "commands": {
+    "prefix": "project",
+    "available": [
+      "intake",
+      "analyze",
+      "memo"
+    ]
+  },
+  "skills": {
+    "enabled": [
+      "decision-kernel",
+      "memo-generator",
+      "intake-processor"
+    ]
+  },
+  "governance": {
+    "anchor": "artifacts/bridge.md",
+    "changeControl": true,
+    "silentDriftProhibited": true
+  }
+}

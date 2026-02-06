@@ -1,0 +1,28 @@
+# Client work - confidential
+clients/
+
+# Generated outputs
+outputs/
+
+# Local configuration overrides
+*.local.md
+*.local.json
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp
+*.temp
