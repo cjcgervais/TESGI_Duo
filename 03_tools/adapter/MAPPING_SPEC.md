@@ -55,4 +55,6 @@ Client ID resolution:
 ## Safety Rules
 
 - Both scripts fail on existing target directory unless `--force` is provided.
+- `--sync-delete` is available in both directions to prune stale files, but only with `--force`.
+- Pruning is constrained to mapped file paths and mapped source trees (`sources/**/*`); unmanaged paths are not deleted.
 - Both scripts print JSON summaries to support deterministic logs.

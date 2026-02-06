@@ -51,28 +51,44 @@ def ensure_dir(path: Path) -> None:
     path.mkdir(parents=True, exist_ok=True)
 
 
-def copy_if_exists(src: Path, dst: Path) -> bool:
-    if not src.is_file():
-        return False
-    ensure_dir(dst.parent)
-    shutil.copy2(src, dst)
-    return True
-
-
-def copy_tree_if_exists(src_dir: Path, dst_dir: Path) -> int:
-    if not src_dir.is_dir():
-        return 0
-    copied = 0
-    ensure_dir(dst_dir)
-    for src in src_dir.rglob("*"):
-        if not src.is_file():
-            continue
-        rel = src.relative_to(src_dir)
-        dst = dst_dir / rel
+def sync_file(src: Path, dst: Path, sync_delete: bool = False) -> tuple[bool, bool]:
+    copied = False
+    pruned = False
+    if src.is_file():
         ensure_dir(dst.parent)
         shutil.copy2(src, dst)
-        copied += 1
-    return copied
+        copied = True
+    elif sync_delete and dst.is_file():
+        dst.unlink()
+        pruned = True
+    return copied, pruned
+
+
+def sync_tree(src_dir: Path, dst_dir: Path, sync_delete: bool = False) -> tuple[int, int]:
+    copied = 0
+    pruned = 0
+    source_files: set[Path] = set()
+    if src_dir.is_dir():
+        ensure_dir(dst_dir)
+        for src in src_dir.rglob("*"):
+            if not src.is_file():
+                continue
+            rel = src.relative_to(src_dir)
+            source_files.add(rel)
+            dst = dst_dir / rel
+            ensure_dir(dst.parent)
+            shutil.copy2(src, dst)
+            copied += 1
+    if sync_delete and dst_dir.is_dir():
+        for dst in sorted(dst_dir.rglob("*"), reverse=True):
+            if dst.is_file():
+                rel = dst.relative_to(dst_dir)
+                if rel not in source_files:
+                    dst.unlink()
+                    pruned += 1
+            elif dst.is_dir() and not any(dst.iterdir()):
+                dst.rmdir()
+    return copied, pruned
 
 
 def write_intake_ack(path: Path, client_id: str, slug: str) -> None:
@@ -126,6 +142,11 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Overwrite existing target files if present",
     )
+    parser.add_argument(
+        "--sync-delete",
+        action="store_true",
+        help="With --force, prune stale files from mapped target paths",
+    )
     return parser.parse_args()
 
 
@@ -143,6 +164,8 @@ def main() -> int:
 
     if not src.is_dir():
         raise FileNotFoundError(f"Claude client path not found: {src}")
+    if args.sync_delete and not args.force:
+        raise RuntimeError("--sync-delete requires --force")
     if dst.exists() and not args.force:
         raise RuntimeError(
             f"TESGI slug already exists: {dst}. Use --force to overwrite target files."
@@ -150,21 +173,26 @@ def main() -> int:
 
     ensure_tesgi_scaffold(dst)
 
-    copied = {
-        "intake": copy_if_exists(src / "intake.md", dst / "00_intake" / "intake.md"),
-        "true": copy_if_exists(src / "analysis" / "true.md", dst / "02_analysis" / "true.md"),
-        "north": copy_if_exists(
-            src / "analysis" / "north.md", dst / "02_analysis" / "north.md"
-        ),
-        "aligned": copy_if_exists(
-            src / "analysis" / "aligned.md", dst / "02_analysis" / "aligned.md"
-        ),
-        "esg": copy_if_exists(
-            src / "analysis" / "esg.md", dst / "02_analysis" / "esg.md"
-        ),
-        "memo": copy_if_exists(src / "memo.md", dst / "03_memo" / "Decision_Memo.md"),
+    copied = {}
+    pruned = {}
+    file_mappings = {
+        "intake": (src / "intake.md", dst / "00_intake" / "intake.md"),
+        "true": (src / "analysis" / "true.md", dst / "02_analysis" / "true.md"),
+        "north": (src / "analysis" / "north.md", dst / "02_analysis" / "north.md"),
+        "aligned": (src / "analysis" / "aligned.md", dst / "02_analysis" / "aligned.md"),
+        "esg": (src / "analysis" / "esg.md", dst / "02_analysis" / "esg.md"),
+        "memo": (src / "memo.md", dst / "03_memo" / "Decision_Memo.md"),
     }
-    sources_count = copy_tree_if_exists(src / "sources", dst / "01_sources")
+    for key, (src_file, dst_file) in file_mappings.items():
+        copied_flag, pruned_flag = sync_file(src_file, dst_file, sync_delete=args.sync_delete)
+        copied[key] = copied_flag
+        pruned[key] = pruned_flag
+
+    sources_count, sources_pruned = sync_tree(
+        src / "sources",
+        dst / "01_sources",
+        sync_delete=args.sync_delete,
+    )
     write_intake_ack(dst / "00_intake" / "intake_ack.json", client_id=client_id, slug=slug)
 
     summary = {
@@ -172,7 +200,9 @@ def main() -> int:
         "target": dst.as_posix(),
         "slug": slug,
         "copied": copied,
+        "pruned": pruned,
         "sources_files_copied": sources_count,
+        "sources_files_pruned": sources_pruned,
     }
     print(json.dumps(summary, indent=2, sort_keys=True, ensure_ascii=True))
     return 0

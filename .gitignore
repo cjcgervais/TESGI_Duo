@@ -9,3 +9,13 @@ __pycache__/
 .dist-info/
 .venv/
 .env/
+
+# Runtime artifacts
+runs/*/
+02_client_work/*/03_memo/memo.md
+02_client_work/*/04_package/manifest.json
+02_client_work/*/04_package/gate_report.json
+02_client_work/*/04_package/*.pdf
+02_client_work/*/04_package/runlog.jsonl
+02_client_work/*/05_change_log/plugin_telemetry.jsonl
+04_evals/golden_cases/*/05_change_log/plugin_telemetry.jsonl
