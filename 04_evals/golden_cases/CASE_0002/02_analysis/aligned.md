@@ -53,6 +53,10 @@
 - Construction quote should be obtained before unconditional commitment
 - Consider building contract with fixed-price provisions
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## ALIGNED Status: PASS
 
 Objectives, assumptions, and structure fit together.

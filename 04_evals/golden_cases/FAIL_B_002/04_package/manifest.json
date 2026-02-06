@@ -15,21 +15,27 @@
     },
     {
       "mtime": 1770361724,
+      "path": "01_sources/sources_manifest.json",
+      "sha256": "9831392aa6029b1d0ceae46c0a0792d12a7d6fd8fc6cfc544efa1febb1d9d648",
+      "size": 195
+    },
+    {
+      "mtime": 1770397814,
       "path": "02_analysis/true.md",
-      "sha256": "890bb6074073074a5184c5c96626dc03e2200075e72b6804edffb09960c27607",
-      "size": 320
+      "sha256": "5a48d4975fa7964403957be794643cd4e992f77aaf210b7d14c67867f4fa26b0",
+      "size": 576
     },
     {
-      "mtime": 1770361724,
+      "mtime": 1770397814,
       "path": "02_analysis/north.md",
-      "sha256": "1f61147172f1f7b765ebc85820584bdc34bd0b1675079a11a62e25d951f01782",
-      "size": 274
+      "sha256": "893f252ae5b6c3323d168ddd1872faa230a5846f036d305179de9f17d507b85d",
+      "size": 530
     },
     {
-      "mtime": 1770361724,
+      "mtime": 1770397814,
       "path": "02_analysis/aligned.md",
-      "sha256": "12f8d101b0c714105d3dfd234eae9a56bd40b7c0907f09a87936732d3377e0ea",
-      "size": 238
+      "sha256": "3c6d5c327695f5807acd6263c1ee256c064e262bd0976b4cdfe3e8fd60f6998d",
+      "size": 494
     },
     {
       "mtime": 1770361724,
@@ -38,19 +44,54 @@
       "size": 263
     },
     {
-      "mtime": 1770361732,
+      "mtime": 1770397814,
+      "path": "03_memo/memo.md",
+      "sha256": "ce8fe0c57add67f806745456ef6a4529a7d4a22baa8c59907f996a4360acc0b5",
+      "size": 263
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/memo.pdf",
+      "sha256": "aace94058cb1e4da6c413ac577d005bd3694cb1e705b015cde0af9044e2adff2",
+      "size": 995
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/invoice.pdf",
+      "sha256": "42fbb094e9d95ec0bafca857c114c07881e2a9f069cce4606594f5ef6effd3dc",
+      "size": 746
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/receipt.pdf",
+      "sha256": "7375079441ad813823173c5d3fff8bbd812902cf9f4dd207a0d25e7a29af0331",
+      "size": 746
+    },
+    {
+      "mtime": 1770397814,
       "path": "04_package/manifest.json",
-      "sha256": "a0a9084ee053087ae9e9d5457897a5bdefd8c78b8b9a1ee10faaeb8a3f11287c",
-      "size": 1683
+      "sha256": "29c211c76af017b68e121ca8d94381a40650552d87d9e97c824c6ebdaf964d16",
+      "size": 2927
     },
     {
       "mtime": 1770361724,
       "path": "04_package/gate_report.json",
       "sha256": "e3566b3a06430868d71e9287dfd6c6c520a3da027aabea01951d407ee131dc2f",
       "size": 4
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/runlog.jsonl",
+      "sha256": "44ce568af06e7724cf76b1d6f33543ae3e8101ac6d3f7f22a7a7072206c50f5f",
+      "size": 109
     }
   ],
-  "generated_at": "2026-02-06T07:08:51Z",
+  "generated_at": "2026-02-06T17:10:13Z",
   "python_version": "3.13.7",
-  "tesgi_version": "0.1.1"
+  "tesgi_version": "0.1.1",
+  "tooling": {
+    "cli": "tesgi",
+    "command": "fixture-refresh",
+    "package_schema_version": "1.0"
+  }
 }

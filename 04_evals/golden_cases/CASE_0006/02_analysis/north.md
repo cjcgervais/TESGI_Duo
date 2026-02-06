@@ -54,6 +54,10 @@
 - Rental income strategy depends on resolving unpermitted status
 - Low-moderate risk tolerance is inconsistent with accepting compliance gaps
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## NORTH Status: UNCERTAIN
 
 Decision viability depends on resolution of compliance issues. Without rectification plan and cost certainty, long-term ownership risks are unbounded.

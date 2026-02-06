@@ -50,6 +50,10 @@
 - Native title determination could result in rights that affect freehold use
 - Heritage protection is constitutionally embedded and unlikely to weaken
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## NORTH Status: FAIL
 
 Decision does not make sense over time given known constraints. Client objectives (dwelling, subdivision) face 5-12+ year regulatory pathways with uncertain outcomes.

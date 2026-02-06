@@ -15,6 +15,12 @@
     },
     {
       "mtime": 1770361726,
+      "path": "01_sources/sources_manifest.json",
+      "sha256": "a23f754be06a9d443a2c242904a24f70bd98f101ee37a9069506f46e6b9d91a5",
+      "size": 195
+    },
+    {
+      "mtime": 1770361726,
       "path": "02_analysis/true.md",
       "sha256": "890bb6074073074a5184c5c96626dc03e2200075e72b6804edffb09960c27607",
       "size": 320
@@ -38,19 +44,54 @@
       "size": 309
     },
     {
-      "mtime": 1770361732,
+      "mtime": 1770397814,
+      "path": "03_memo/memo.md",
+      "sha256": "b76e38de86292849d1e3cd94909a537b8e82dc7752aa1e683ec934fea6e11683",
+      "size": 309
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/memo.pdf",
+      "sha256": "c5d9f2dfd376e692fa7fb448b52bfa3e472fcfa7ba3d39fdd7e1ee52579df8ac",
+      "size": 1041
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/invoice.pdf",
+      "sha256": "a2c6adf2161df0dab5047707d3fcfff9084c9328776feb5b3988fa7e3ab841cc",
+      "size": 746
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/receipt.pdf",
+      "sha256": "0880f9bbfbab74a5a1ec8fd00245cf4a22982f347cdbd5b8467e0305d0c4a4ab",
+      "size": 746
+    },
+    {
+      "mtime": 1770397814,
       "path": "04_package/manifest.json",
-      "sha256": "14634895421b9573d464547007112d0c107ad0b744f3ded9f3f8c0930aad3760",
-      "size": 1683
+      "sha256": "a225c1a3c4f3967e7caf87044229a54c412378a73aae273043bc1bb457fc4c97",
+      "size": 2928
     },
     {
       "mtime": 1770361726,
       "path": "04_package/gate_report.json",
       "sha256": "e3566b3a06430868d71e9287dfd6c6c520a3da027aabea01951d407ee131dc2f",
       "size": 4
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/runlog.jsonl",
+      "sha256": "febb27070bd72576f7a08fd3db4dc830403f8a23d2760c1bcb85424909ac73c6",
+      "size": 109
     }
   ],
-  "generated_at": "2026-02-06T07:08:51Z",
+  "generated_at": "2026-02-06T17:10:13Z",
   "python_version": "3.13.7",
-  "tesgi_version": "0.1.1"
+  "tesgi_version": "0.1.1",
+  "tooling": {
+    "cli": "tesgi",
+    "command": "fixture-refresh",
+    "package_schema_version": "1.0"
+  }
 }

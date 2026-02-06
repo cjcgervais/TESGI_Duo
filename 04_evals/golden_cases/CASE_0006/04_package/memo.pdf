@@ -1,0 +1,90 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 3916 >>
+stream
+BT
+/F1 11 Tf
+72 760 Td
+(TESGI Decision Memo - CASE_0006) Tj
+0 -14 Td (# TESGI Advisory Decision Memo) Tj
+0 -14 Td (**Client:** Rachel & Tom Foster) Tj
+0 -14 Td (**Date:** July 5, 2024) Tj
+0 -14 Td (**Property:** 78 Boundary Street, Millfield SA 5153) Tj
+0 -14 Td (**Prepared by:** TESGI Advisory) Tj
+0 -14 Td (**Service Type:** Non-Representational Decision Analysis) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 1. Client Objective \(As Understood\)) Tj
+0 -14 Td (You are considering purchasing a residential property with granny flat at 78 Boundary Street, Millfield for $685,000. Your stated objectives are:) Tj
+0 -14 Td (1. Family home with rental income from granny flat) Tj
+0 -14 Td (2. Offset mortgage with rental income \(~$350/week expected\)) Tj
+0 -14 Td (3. Long-term family home \(10+ years\)) Tj
+0 -14 Td (4. Budget: $685,000 purchase + $30,000 improvements) Tj
+0 -14 Td (You describe your risk tolerance as low-moderate. This is your first home purchase, and you are using most of your savings for the deposit.) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 2. Information Snapshot) Tj
+0 -14 Td (### Known Facts) Tj
+0 -14 Td (- Main dwelling is permitted and generally compliant \(with noted repairs\)) Tj
+0 -14 Td (- Granny flat has **no building permit**) Tj
+0 -14 Td (- Granny flat has **no occupancy certificate**) Tj
+0 -14 Td (- Granny flat has substandard electrical wiring \(safety hazard\)) Tj
+0 -14 Td (- Main house has unpermitted bathroom renovation) Tj
+0 -14 Td (- Title has restrictive covenant \(height limit - granny flat appears compliant\)) Tj
+0 -14 Td (- Vendor states granny flat "been there 20 years with no problems") Tj
+0 -14 Td (### Key Problems) Tj
+0 -14 Td (| Issue | Implication |) Tj
+0 -14 Td (|-------|-------------|) Tj
+0 -14 Td (| No building permit | Structure is unpermitted; council can order demolition |) Tj
+0 -14 Td (| No occupancy certificate | Unlawful to rent for habitation |) Tj
+0 -14 Td (| Substandard electrical | Safety hazard; must be rectified; may void insurance |) Tj
+0 -14 Td (| Unpermitted bathroom | Minor compliance issue; should be rectified |) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 3. TRUE Assessment Summary) Tj
+0 -14 Td (Compliance failures are definitively established through council records and professional inspection. The granny flat is unpermitted and cannot be lawfully rented. The vendor's statement \("20 years no problems"\) provides no legal protection.) Tj
+0 -14 Td (**TRUE Status: PASS \(facts are known; they reveal significant problems\)**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 4. NORTH Assessment Summary) Tj
+0 -14 Td (Long-term ownership depends on resolving compliance issues. Continuing to rent an unpermitted structure creates enforcement risk and liability exposure. Retrospective permitting may cost $15,000-$40,000 with uncertain success. Your low-moderate risk tolerance is inconsistent with these unknowns.) Tj
+0 -14 Td (**NORTH Status: UNCERTAIN ? Depends on compliance resolution**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 5. ALIGNED Assessment Summary) Tj
+0 -14 Td (Your rental income strategy \($350/week mortgage offset\) depends entirely on the granny flat being legally rentable. Currently, it is not. Your $30,000 improvement budget may be consumed by compliance rectification, leaving nothing for intended improvements. Objectives can only align if compliance pathway is confirmed and affordable.) Tj
+0 -14 Td (**ALIGNED Status: CONDITIONAL ? Requires compliance certainty**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 6. Decision State) Tj
+0 -14 Td (- [ ] Proceed) Tj
+0 -14 Td (- [x] Pause) Tj
+0 -14 Td (- [ ] Avoid / Walk Away) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 7. Missing Information List) Tj
+0 -14 Td (Before proceeding, you need:) Tj
+0 -14 Td (1. **Council pre-application advice on retrospective permit**) Tj
+0 -14 Td (- Can the granny flat be retrospectively approved?) Tj
+0 -14 Td (- What upgrades would be required to meet current standards?) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000004209 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+4279
+%%EOF

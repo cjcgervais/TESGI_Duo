@@ -52,6 +52,10 @@
 - Vendor's casual disclosure ("nothing significant") is not reliable
 - Oil staining disclosure suggests contamination is likely
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## ALIGNED Status: CANNOT DETERMINE
 
 Objective-constraint alignment cannot be assessed without environmental data.

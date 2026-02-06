@@ -52,6 +52,10 @@
   - Development delays
   - Project feasibility risk
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## NORTH Status: CANNOT DETERMINE
 
 Long-term context cannot be evaluated without environmental assessment.

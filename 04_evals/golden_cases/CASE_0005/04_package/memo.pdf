@@ -1,0 +1,90 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 4245 >>
+stream
+BT
+/F1 11 Tf
+72 760 Td
+(TESGI Decision Memo - CASE_0005) Tj
+0 -14 Td (# TESGI Advisory Decision Memo) Tj
+0 -14 Td (**Client:** Peter Nguyen) Tj
+0 -14 Td (**Date:** June 18, 2024) Tj
+0 -14 Td (**Property:** 45 Refinery Road, Portside QLD 4170) Tj
+0 -14 Td (**Prepared by:** TESGI Advisory) Tj
+0 -14 Td (**Service Type:** Non-Representational Decision Analysis) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 1. Client Objective \(As Understood\)) Tj
+0 -14 Td (You are considering purchasing a 1.2-hectare former petroleum storage depot at 45 Refinery Road, Portside for $890,000 \(reduced from $1.4M\). Your stated objectives are:) Tj
+0 -14 Td (1. Develop for mixed-use commercial/residential) Tj
+0 -14 Td (2. Capitalize on waterfront location and rezoning potential) Tj
+0 -14 Td (3. Medium-term hold \(5-7 years\) for development or resale) Tj
+0 -14 Td (4. Total investment budget: $1.5M) Tj
+0 -14 Td (You describe yourself as a sophisticated investor with high risk tolerance seeking value-add opportunities.) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 2. Information Snapshot) Tj
+0 -14 Td (### Known Facts) Tj
+0 -14 Td (- Former petroleum storage depot) Tj
+0 -14 Td (- Site is on EPA Contaminated Land Register) Tj
+0 -14 Td (- EPA notice registered on title) Tj
+0 -14 Td (- Phase 2 ESA confirms petroleum hydrocarbons \(TPH, BTEX\) in soil and groundwater) Tj
+0 -14 Td (- Contamination exceeds both residential AND commercial/industrial thresholds) Tj
+0 -14 Td (- Professional remediation estimate: **$1.8M - $3.2M**) Tj
+0 -14 Td (- Remediation timeline: typically 4-8 years including groundwater treatment) Tj
+0 -14 Td (- Price reduced 36% \($1.4M ? $890K\) reflecting contamination) Tj
+0 -14 Td (### The Core Problem) Tj
+0 -14 Td (| Your Budget | Required Investment | Shortfall |) Tj
+0 -14 Td (|-------------|---------------------|-----------|) Tj
+0 -14 Td (| $1,500,000 | $3,790,000 | **$2,290,000** |) Tj
+0 -14 Td (You cannot afford this opportunity.) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 3. TRUE Assessment Summary) Tj
+0 -14 Td (Contamination is definitively confirmed through professional Phase 2 ESA. The site is on the EPA Contaminated Land Register. Facts are clearly established and severely adverse.) Tj
+0 -14 Td (**TRUE Status: PASS \(facts are known; they are very bad\)**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 4. NORTH Assessment Summary) Tj
+0 -14 Td (Remediation alone will take 4-8 years and cost $1.8M-$3.2M. Your 5-7 year timeline is consumed by remediation before any development can begin. Your $1.5M budget is exhausted by remediation with nothing remaining for holding costs, development, or contingency.) Tj
+0 -14 Td (**NORTH Status: FAIL ? Timeline and economics fundamentally broken**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 5. ALIGNED Assessment Summary) Tj
+0 -14 Td (Your budget is $2.3M short of the minimum required investment. Your timeline is incompatible with groundwater remediation. Your objectives require development that cannot commence for 4-8 years. Every structural element is misaligned.) Tj
+0 -14 Td (**ALIGNED Status: FAIL ? Fatal budget and timeline misalignment**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 6. Decision State) Tj
+0 -14 Td (- [ ] Proceed) Tj
+0 -14 Td (- [ ] Pause) Tj
+0 -14 Td (- [x] Avoid / Walk Away) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 7. Rationale Summary) Tj
+0 -14 Td (This is not a value opportunity for you. It is a capital trap. The reasons are:) Tj
+0 -14 Td (1. **Remediation costs exceed your entire remaining budget.** After purchasing for $890K, you would have $610K remaining. Remediation will cost $1.8M-$3.2M. You cannot fund the remediation.) Tj
+0 -14 Td (2. **The discount is insufficient.** The vendor reduced the price by $510K. The contamination creates $1.8M-$3.2M in liability. You are being asked to accept $1.3M-$2.7M in unfunded liability.) Tj
+0 -14 Td (3. **Your timeline is consumed by remediation.** Groundwater contamination requires 2-5 years of active treatment plus monitoring. Your 5-7 year hold period ends before development can begin.) Tj
+0 -14 Td (4. **Benzene contamination triggers highest regulatory scrutiny.** BTEX contamination \(including benzene, a known carcinogen\) means EPA will require extensive remediation and long-term monitoring before approving any sensitive use.) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000004538 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+4608
+%%EOF

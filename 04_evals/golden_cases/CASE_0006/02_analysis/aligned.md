@@ -57,6 +57,10 @@
 - Electrical issues create personal safety and liability exposure
 - Decision requires clarity on retrospective permit pathway and costs
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## ALIGNED Status: CONDITIONAL
 
 Objectives can only align if: (1) retrospective permit is achievable, (2) costs fit budget, (3) clients accept higher risk than stated tolerance. Without these conditions confirmed, objectives are misaligned.

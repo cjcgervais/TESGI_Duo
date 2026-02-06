@@ -25,9 +25,17 @@ _ANALYSIS_FILES = (
     "02_analysis/aligned.md",
 )
 _MEMO_FILE = ("03_memo/Decision_Memo.md",)
+_MEMO_BUILD_FILES = (
+    "03_memo/Decision_Memo.md",
+    "03_memo/memo.md",
+)
 _PACKAGE_FILES = (
+    "04_package/memo.pdf",
+    "04_package/invoice.pdf",
+    "04_package/receipt.pdf",
     "04_package/manifest.json",
     "04_package/gate_report.json",
+    "04_package/runlog.jsonl",
 )
 
 STAGE_CONTRACTS: Final[dict[str, StageContract]] = {
@@ -53,22 +61,22 @@ STAGE_CONTRACTS: Final[dict[str, StageContract]] = {
     ),
     "memo_built": StageContract(
         stage="memo_built",
-        required_files=_INTAKE_FILES + _ANALYSIS_FILES + _MEMO_FILE,
+        required_files=_INTAKE_FILES + _ANALYSIS_FILES + _MEMO_BUILD_FILES,
     ),
     "boundary_passed": StageContract(
         stage="boundary_passed",
-        required_files=_INTAKE_FILES + _ANALYSIS_FILES + _MEMO_FILE,
-        required_gates=("C",),
+        required_files=_INTAKE_FILES + _ANALYSIS_FILES + _MEMO_BUILD_FILES,
+        required_gates=("O", "A", "B", "C", "E"),
     ),
     "package_passed": StageContract(
         stage="package_passed",
-        required_files=_INTAKE_FILES + _ANALYSIS_FILES + _MEMO_FILE + _PACKAGE_FILES,
-        required_gates=("A", "B", "C", "D"),
+        required_files=_INTAKE_FILES + _ANALYSIS_FILES + _MEMO_BUILD_FILES + _PACKAGE_FILES,
+        required_gates=("O", "A", "B", "C", "D", "E"),
     ),
     "eval_passed": StageContract(
         stage="eval_passed",
-        required_files=_INTAKE_FILES + _ANALYSIS_FILES + _MEMO_FILE + _PACKAGE_FILES,
-        required_gates=("A", "B", "C", "D", "E"),
+        required_files=_INTAKE_FILES + _ANALYSIS_FILES + _MEMO_BUILD_FILES + _PACKAGE_FILES,
+        required_gates=("O", "A", "B", "C", "D", "E"),
     ),
 }
 

@@ -53,6 +53,10 @@
 - Council rates and insurance higher than suburban equivalents
 - Resale market smaller but stable for quality rural holdings
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## NORTH Status: PASS
 
 Decision makes sense over time given known constraints.

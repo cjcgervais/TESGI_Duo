@@ -55,6 +55,10 @@
 - Practical answer is "this property is not suitable for your objectives"
 - Avoiding this purchase is not a failure; it is appropriate filtering
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## ALIGNED Status: FAIL
 
 Fundamental misalignment between client objectives and property constraints. Objectives require development rights that face severe, long-term, uncertain regulatory barriers.

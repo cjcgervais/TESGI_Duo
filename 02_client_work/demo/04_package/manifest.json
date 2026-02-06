@@ -14,22 +14,22 @@
       "size": 2
     },
     {
-      "mtime": 1770361816,
+      "mtime": 1770397814,
       "path": "02_analysis/true.md",
-      "sha256": "0884e93074178437302c8c818037d6b376f8524534b2608f12eb4223afb97996",
-      "size": 432
+      "sha256": "d53da0c232791aec0c3e171b194f7628efa91271f4341608f605db312027226e",
+      "size": 688
     },
     {
-      "mtime": 1770361816,
+      "mtime": 1770397814,
       "path": "02_analysis/north.md",
-      "sha256": "8e8b43e9c1ee8e4580606c79cc506c7547620a63f839b77304200beab9605d17",
-      "size": 323
+      "sha256": "adcfd1fcee869007076e5deda62c9f78c5e6bb867bbc91689f86ebd04e9e1220",
+      "size": 579
     },
     {
-      "mtime": 1770361816,
+      "mtime": 1770397814,
       "path": "02_analysis/aligned.md",
-      "sha256": "8b50a197671b8a3d84af413bc9156a98aac2d752d465735d88633bfbf1e2391c",
-      "size": 324
+      "sha256": "704572d6a0f941a07a47c9753aa4c7d5cb07cde682fe4a2bbe79cfa2f5b5de75",
+      "size": 580
     },
     {
       "mtime": 1770352168,
@@ -38,19 +38,60 @@
       "size": 373
     },
     {
-      "mtime": 1770361824,
-      "path": "04_package/manifest.json",
-      "sha256": "f1dd5a56e071dbc6efae5380df1b201af922d3773920045636b6c1805cb5f6cb",
-      "size": 1671
+      "mtime": 1770398018,
+      "path": "03_memo/memo.md",
+      "sha256": "7c7e147a2b7f413750e587af4b4ffff2ba68c8985bfbad6e3bd1449db18ea82a",
+      "size": 387
     },
     {
-      "mtime": 1770361824,
+      "mtime": 1770398018,
+      "path": "04_package/memo.pdf",
+      "sha256": "982d9e591855542d6b43f8d9ecdf92675f021afb37d7564f12116521fb3253cc",
+      "size": 1126
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/invoice.pdf",
+      "sha256": "549cdc537e57e39435dcb3ed24d5ddf612323e72b83ea4da92c929e3a257f6dc",
+      "size": 740
+    },
+    {
+      "mtime": 1770397814,
+      "path": "04_package/receipt.pdf",
+      "sha256": "9065c8378fcd21f975acc3331d65bc9a11cd2ebe8612c65c9ad4648913067a82",
+      "size": 740
+    },
+    {
+      "mtime": 1770398020,
+      "path": "04_package/manifest.json",
+      "sha256": "f109c4a4578885312dd8b5fbb71d7ad130b4dbbe34ad861e65b20880513eb2b7",
+      "size": 2905
+    },
+    {
+      "mtime": 1770398020,
       "path": "04_package/gate_report.json",
-      "sha256": "38b7bc05257e659aaacccba56f9397a57ee31b4d6d27cb4818d752c81befda4f",
+      "sha256": "3033b3ea1557562ab5dc02b81e7b0124875be68c846fb137136181a8eb709d01",
       "size": 829
+    },
+    {
+      "mtime": 1770398020,
+      "path": "04_package/runlog.jsonl",
+      "sha256": "0088fde064257ec2d93e9d58999b66386cc71ec6e0255966868e60a56746da22",
+      "size": 5719
+    },
+    {
+      "mtime": 1770361816,
+      "path": "01_sources/sources_manifest.json",
+      "sha256": "047f1a1a7fa45c0505c7f23a5d738455eb2f1333a3b7f250fd338e922b52aa39",
+      "size": 185
     }
   ],
-  "generated_at": "2026-02-06T07:10:22Z",
+  "generated_at": "2026-02-06T17:13:38Z",
   "python_version": "3.13.7",
-  "tesgi_version": "0.1.1"
+  "tesgi_version": "0.1.1",
+  "tooling": {
+    "cli": "tesgi",
+    "command": "run",
+    "package_schema_version": "1.0"
+  }
 }

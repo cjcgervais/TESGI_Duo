@@ -55,6 +55,10 @@
 - Walking away protects client from capital loss
 - There may be an opportunity here — but not for this client
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## ALIGNED Status: FAIL
 
 Fundamental misalignment between client resources/timeline and project requirements. Budget shortfall of $2.3M makes this transaction economically irrational for this buyer.

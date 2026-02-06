@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Sequence
 
-from .contracts import STAGE_CONTRACTS
+from .contracts import STAGE_CONTRACTS, STAGE_SCHEMAS
 from .states import STAGES
 
 
@@ -20,6 +20,7 @@ class StageStatus:
     stage: str
     valid: bool
     violations: tuple[str, ...]
+    schema_errors: tuple[str, ...]
     existing_files: tuple[str, ...]
     passed_gates: tuple[str, ...]
 
@@ -28,6 +29,7 @@ class StageStatus:
             "stage": self.stage,
             "valid": self.valid,
             "violations": list(self.violations),
+            "schema_errors": list(self.schema_errors),
             "existing_files": list(self.existing_files),
             "passed_gates": list(self.passed_gates),
         }
@@ -138,6 +140,38 @@ class OrchestrationEngine:
             last = stage
         return last
 
+    def _validate_stage_schema(self, stage: str, payload: dict) -> tuple[str, ...]:
+        schema = STAGE_SCHEMAS.get(stage)
+        if schema is None:
+            return (f"no stage schema registered for {stage}",)
+
+        errors: list[str] = []
+        for key in schema.get("required", []):
+            if key not in payload:
+                errors.append(f"{stage} schema missing required field: {key}")
+
+        stage_const = schema.get("properties", {}).get("stage", {}).get("const")
+        if stage_const and payload.get("stage") != stage_const:
+            errors.append(f"{stage} schema requires stage={stage_const}")
+
+        existing = payload.get("existing_files")
+        passed = payload.get("passed_gates")
+        if not isinstance(existing, list):
+            errors.append(f"{stage} schema requires existing_files as list")
+        if not isinstance(passed, list):
+            errors.append(f"{stage} schema requires passed_gates as list")
+
+        for clause in schema.get("allOf", []):
+            properties = clause.get("properties", {})
+            existing_rule = properties.get("existing_files", {}).get("contains", {}).get("const")
+            if existing_rule and existing_rule not in payload.get("existing_files", []):
+                errors.append(f"{stage} schema missing file: {existing_rule}")
+            gate_rule = properties.get("passed_gates", {}).get("contains", {}).get("const")
+            if gate_rule and gate_rule not in payload.get("passed_gates", []):
+                errors.append(f"{stage} schema missing gate: {gate_rule}")
+
+        return tuple(errors)
+
     def evaluate(self, gate_results: Sequence | None = None) -> StageStatus:
         passed_gates = ()
         if gate_results is not None:
@@ -148,18 +182,28 @@ class OrchestrationEngine:
             )
         violations = tuple(self.validate_stage_order())
         stage = self.infer_stage(passed_gates=passed_gates)
+        payload = {
+            "stage": stage,
+            "existing_files": list(self.collect_existing_files()),
+            "passed_gates": sorted(set(passed_gates)),
+        }
+        schema_errors: tuple[str, ...] = ()
+        if stage != "uninitialized":
+            schema_errors = self._validate_stage_schema(stage, payload)
         return StageStatus(
             stage=stage,
-            valid=not violations,
+            valid=not violations and not schema_errors,
             violations=violations,
-            existing_files=self.collect_existing_files(),
-            passed_gates=tuple(sorted(set(passed_gates))),
+            schema_errors=schema_errors,
+            existing_files=tuple(payload["existing_files"]),
+            passed_gates=tuple(payload["passed_gates"]),
         )
 
     def require_package_allowed(self, gate_results: Sequence) -> None:
         status = self.evaluate(gate_results=gate_results)
         if not status.valid:
-            raise OrchestrationError("; ".join(status.violations))
+            details = list(status.violations) + list(status.schema_errors)
+            raise OrchestrationError("; ".join(details))
         required = STAGE_CONTRACTS["package_passed"].required_gates
         missing = [gate for gate in required if gate not in status.passed_gates]
         if missing:

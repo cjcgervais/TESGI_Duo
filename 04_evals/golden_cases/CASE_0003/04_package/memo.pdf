@@ -1,0 +1,90 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [3 0 R] >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 3550 >>
+stream
+BT
+/F1 11 Tf
+72 760 Td
+(TESGI Decision Memo - CASE_0003) Tj
+0 -14 Td (# TESGI Advisory Decision Memo) Tj
+0 -14 Td (**Client:** Sarah Thompson) Tj
+0 -14 Td (**Date:** April 22, 2024) Tj
+0 -14 Td (**Property:** 15 Industrial Lane, Westbrook VIC 3461) Tj
+0 -14 Td (**Prepared by:** TESGI Advisory) Tj
+0 -14 Td (**Service Type:** Non-Representational Decision Analysis) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 1. Client Objective \(As Understood\)) Tj
+0 -14 Td (You are considering purchasing a 2.5-acre former automotive repair workshop at 15 Industrial Lane, Westbrook for $285,000. Your intention is to redevelop the site for residential townhouses \(6-8 units\) over a 3-5 year timeline.) Tj
+0 -14 Td (Your stated priorities are:) Tj
+0 -14 Td (- Redevelopment for residential use) Tj
+0 -14 Td (- Medium-term investment horizon) Tj
+0 -14 Td (- Maximize return on capital) Tj
+0 -14 Td (Your risk tolerance is moderate-high as an experienced developer, but you want to understand environmental exposure.) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 2. Information Snapshot) Tj
+0 -14 Td (### Known Facts) Tj
+0 -14 Td (- Property is 2.5 acres, zoned Mixed Use \(MUZ\)) Tj
+0 -14 Td (- Residential development is permitted under zoning) Tj
+0 -14 Td (- Title is clear) Tj
+0 -14 Td (- Former use was automotive repair workshop) Tj
+0 -14 Td (- Vendor has disclosed "oil staining on concrete slab") Tj
+0 -14 Td (- 5 days remain in 14-day due diligence period) Tj
+0 -14 Td (### Key Uncertainties / Gaps) Tj
+0 -14 Td (- No Phase 1 Environmental Site Assessment completed) Tj
+0 -14 Td (- No Phase 2 ESA \(soil/groundwater sampling\) completed) Tj
+0 -14 Td (- No EPA records search completed) Tj
+0 -14 Td (- Contamination type, extent, and depth unknown) Tj
+0 -14 Td (- Remediation requirements and costs unknown) Tj
+0 -14 Td (- Whether EPA audit condition will apply unknown) Tj
+0 -14 Td (**These gaps are material and prevent informed decision-making.**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 3. TRUE Assessment Summary) Tj
+0 -14 Td (Critical environmental information is not available. The property's former use as an automotive workshop creates high probability of contamination. Vendor disclosure of oil staining confirms at minimum surface contamination exists. Without Phase 1 and Phase 2 ESA, the extent and remediation cost cannot be determined.) Tj
+0 -14 Td (**TRUE Status: FAIL ? Unbounded uncertainty on material facts**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 4. NORTH Assessment Summary) Tj
+0 -14 Td (Long-term development potential cannot be evaluated. Regulatory pathway depends on contamination status. Timeline viability depends on remediation requirements. The remaining 5-day due diligence period is insufficient for environmental assessment.) Tj
+0 -14 Td (**NORTH Status: CANNOT DETERMINE**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 5. ALIGNED Assessment Summary) Tj
+0 -14 Td (Development feasibility cannot be calculated without contamination data. Client objectives \(residential development, 3-5 year timeline, maximize return\) cannot be validated against unknown remediation liability.) Tj
+0 -14 Td (**ALIGNED Status: CANNOT DETERMINE**) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 6. Decision State) Tj
+0 -14 Td (- [ ] Proceed) Tj
+0 -14 Td (- [x] Pause) Tj
+0 -14 Td (- [ ] Avoid / Walk Away) Tj
+0 -14 Td (---) Tj
+0 -14 Td (## 7. Missing Information List) Tj
+0 -14 Td (Before a decision can be made, the following must be obtained:) Tj
+0 -14 Td (1. **Phase 1 Environmental Site Assessment**) Tj
+0 -14 Td (- Desktop review of historical use) Tj
+0 -14 Td (- EPA records search) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000003843 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+3913
+%%EOF

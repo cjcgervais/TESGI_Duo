@@ -1,108 +1,31 @@
-import argparse
-import hashlib
-import json
-import re
+﻿import argparse
+import os
 import shutil
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import __version__
 from .orchestration import OrchestrationEngine, OrchestrationError
 from .plugins import PluginConfigError, PluginManager
 
 ROOT = Path(__file__).resolve().parents[1]
-ALLOWLIST_FILES = (
-    "00_intake/intake.md",
-    "00_intake/intake_ack.json",
-    "02_analysis/true.md",
-    "02_analysis/north.md",
-    "02_analysis/aligned.md",
-    "03_memo/Decision_Memo.md",
-    "04_package/manifest.json",
-    "04_package/gate_report.json",
+VALIDATORS_DIR = ROOT / "03_tools" / "validators"
+PACKAGERS_DIR = ROOT / "03_tools" / "packagers"
+for tools_dir in (PACKAGERS_DIR, VALIDATORS_DIR):
+    if str(tools_dir) not in sys.path:
+        sys.path.insert(0, str(tools_dir))
+
+from tesgi_gate_validators import print_results, run_gates
+from tesgi_packagers import (
+    append_runlog_event,
+    build_memo_artifacts,
+    initialize_package_skeleton,
+    utc_now,
+    write_gate_report,
+    write_json,
+    write_manifest,
 )
-
-KERNEL_REQUIREMENTS = {
-    "true.md": {
-        "section_groups": [
-            ["Source Verification", "Sources"],
-            ["Fact Availability", "Facts"],
-            ["Boundary Clarity", "Boundaries"],
-        ],
-        "require_status": True,
-    },
-    "north.md": {
-        "section_groups": [
-            ["Regulatory", "Planning"],
-            ["Timeline", "Horizon", "Context"],
-        ],
-        "require_status": True,
-    },
-    "aligned.md": {
-        "section_groups": [
-            ["Objectives"],
-            ["Constraints", "Constraint", "Assumptions", "Structure"],
-        ],
-        "require_status": True,
-    },
-}
-
-BLOCKER_PATTERNS = [
-    r"Status:\s*FAIL",
-    r"(?i)unbounded\s+uncertainty",
-    r"(?i)cannot\s+be\s+verified",
-    r"(?i)missing\s+required",
-    r"(?i)fundamental\s+misalignment",
-    r"(?i)critical\s+gap",
-]
-
-
-class GateResult:
-    def __init__(self, gate_id, name, status, detail):
-        self.gate_id = gate_id
-        self.name = name
-        self.status = status
-        self.detail = detail
-
-    def as_dict(self):
-        return {
-            "id": self.gate_id,
-            "name": self.name,
-            "status": "pass" if self.status else "fail",
-            "detail": self.detail,
-        }
-
-
-def utc_now():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-
-
-def parse_simple_yaml(path):
-    data = {}
-    current_key = None
-    if not path.is_file():
-        return data
-    for raw in path.read_text(encoding="utf-8").splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#"):
-            continue
-        if raw.lstrip().startswith("- "):
-            if current_key and isinstance(data.get(current_key), list):
-                value = raw.lstrip()[2:].strip()
-                data[current_key].append(value)
-            continue
-        if ":" in raw:
-            key, rest = raw.split(":", 1)
-            key = key.strip()
-            rest = rest.strip()
-            if rest:
-                data[key] = rest
-                current_key = None
-            else:
-                data[key] = []
-                current_key = key
-    return data
 
 
 def validate_slug(slug):
@@ -114,468 +37,6 @@ def slug_path(slug):
     return ROOT / "02_client_work" / slug
 
 
-def list_client_files(base_dir):
-    files = []
-    for rel in ALLOWLIST_FILES:
-        path = base_dir / rel
-        if path.is_file():
-            files.append(rel)
-    return files
-
-
-def file_sha256(path):
-    digest = hashlib.sha256()
-    with path.open("rb") as handle:
-        for chunk in iter(lambda: handle.read(8192), b""):
-            digest.update(chunk)
-    return digest.hexdigest()
-
-
-def python_version():
-    info = sys.version_info
-    return f"{info.major}.{info.minor}.{info.micro}"
-
-
-def compute_manifest(base_dir):
-    try:
-        base_value = base_dir.relative_to(ROOT).as_posix()
-    except ValueError:
-        base_value = base_dir.as_posix()
-    entries = []
-    for rel in list_client_files(base_dir):
-        path = base_dir / rel
-        stat = path.stat()
-        entries.append(
-            {
-                "path": rel,
-                "sha256": file_sha256(path),
-                "size": stat.st_size,
-                "mtime": int(stat.st_mtime),
-            }
-        )
-    return {
-        "generated_at": utc_now(),
-        "base_dir": base_value,
-        "tesgi_version": __version__,
-        "python_version": python_version(),
-        "files": entries,
-    }
-
-
-def write_json(path, payload):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        json.dumps(payload, indent=2, sort_keys=True, ensure_ascii=True) + "\n",
-        encoding="utf-8",
-    )
-
-
-def write_manifest(base_dir):
-    manifest_path = base_dir / "04_package" / "manifest.json"
-    manifest = compute_manifest(base_dir)
-    write_json(manifest_path, manifest)
-    manifest = compute_manifest(base_dir)
-    write_json(manifest_path, manifest)
-    return manifest
-
-
-def find_memo_files(base_dir):
-    memo_dir = base_dir / "03_memo"
-    if not memo_dir.is_dir():
-        return []
-    memo_files = []
-    for path in memo_dir.rglob("*"):
-        if not path.is_file():
-            continue
-        if path.suffix.lower() in {".md", ".txt"}:
-            memo_files.append(path)
-    return sorted(memo_files)
-
-
-def normalize_text(text):
-    normalized = text
-    replacements = {
-        "\u2019": "'",
-        "\u2018": "'",
-        "\u201c": '"',
-        "\u201d": '"',
-        "\u2013": "-",
-        "\u2014": "-",
-    }
-    for old, new in replacements.items():
-        normalized = normalized.replace(old, new)
-    return normalized
-
-
-def phrase_present(content, phrase):
-    phrase = normalize_text(phrase).strip()
-    if not phrase:
-        return False
-    tokens = phrase.split()
-    pattern = r"\b" + r"\s+".join(re.escape(token) for token in tokens) + r"\b"
-    haystack = normalize_text(content)
-    return re.search(pattern, haystack, flags=re.IGNORECASE) is not None
-
-
-def has_sections(content, sections):
-    missing = []
-    for section in sections:
-        found = False
-        for line in content.splitlines():
-            line_l = line.strip().lower()
-            if not line_l.startswith("#"):
-                continue
-            if section.lower() in line_l:
-                found = True
-                break
-        if not found:
-            missing.append(section)
-    return missing
-
-
-def extract_section(content, section_name):
-    lines = content.splitlines()
-    section_pattern = re.compile(
-        rf"^\s*#{{1,6}}\s+.*{re.escape(section_name)}.*$",
-        flags=re.IGNORECASE,
-    )
-    start = None
-    for idx, line in enumerate(lines):
-        if section_pattern.match(line):
-            start = idx + 1
-            break
-    if start is None:
-        return ""
-    end = len(lines)
-    for idx in range(start, len(lines)):
-        if re.match(r"^\s*#{1,6}\s+", lines[idx]):
-            end = idx
-            break
-    return "\n".join(lines[start:end]).strip()
-
-
-def parse_decision_state(content):
-    section = extract_section(content, "Decision State")
-    selected = []
-    if section:
-        for raw_line in section.splitlines():
-            line = normalize_text(raw_line).strip()
-            line_l = line.lower()
-            if not line_l:
-                continue
-            checked = ("[x]" in line_l) or ("\u2611" in line)
-            if not checked:
-                continue
-            if "proceed" in line_l:
-                selected.append("Proceed")
-            if "pause" in line_l:
-                selected.append("Pause")
-            if "avoid" in line_l or "walk away" in line_l:
-                selected.append("Avoid")
-    explicit = re.search(
-        r"decision\s*state\s*:\s*(proceed|pause|avoid|walk\s*away)",
-        normalize_text(content),
-        flags=re.IGNORECASE,
-    )
-    if explicit:
-        value = explicit.group(1).lower().replace(" ", "")
-        if value in {"avoid", "walkaway"}:
-            selected.append("Avoid")
-        elif value == "pause":
-            selected.append("Pause")
-        else:
-            selected.append("Proceed")
-    unique = []
-    for state in ["Proceed", "Pause", "Avoid"]:
-        if state in selected:
-            unique.append(state)
-    if not unique:
-        return None
-    if len(unique) > 1:
-        return "Multiple"
-    return unique[0]
-
-
-def section_has_list_items(content, section_name):
-    section = extract_section(content, section_name)
-    if not section:
-        return False
-    for raw_line in section.splitlines():
-        line = raw_line.strip()
-        if re.match(r"^[-*]\s+\S+", line):
-            return True
-        if re.match(r"^\d+\.\s+\S+", line):
-            return True
-    return False
-
-
-def section_has_content(content, section_name):
-    section = extract_section(content, section_name)
-    if not section:
-        return False
-    for raw_line in section.splitlines():
-        line = raw_line.strip()
-        if not line:
-            continue
-        if re.match(r"^[-*]\s*$", line):
-            continue
-        if re.match(r"^\d+\.\s*$", line):
-            continue
-        return True
-    return False
-
-
-def kernel_has_blockers(base_dir):
-    analysis_dir = base_dir / "02_analysis"
-    if not analysis_dir.is_dir():
-        return ["02_analysis missing"]
-    blockers = []
-    for path in sorted(analysis_dir.glob("*.md")):
-        content = normalize_text(path.read_text(encoding="utf-8"))
-        for pattern in BLOCKER_PATTERNS:
-            if re.search(pattern, content, flags=re.IGNORECASE):
-                blockers.append(f"{path.name} matched {pattern}")
-                break
-    return blockers
-
-
-def file_has_heading_alias(content, aliases):
-    for line in content.splitlines():
-        line_l = line.strip().lower()
-        if not line_l.startswith("#"):
-            continue
-        for alias in aliases:
-            if alias.lower() in line_l:
-                return True
-    return False
-
-
-def status_line_present(content):
-    for line in content.splitlines():
-        if "status:" in line.lower():
-            return True
-    return False
-
-
-def validate_kernel_content(filepath, required_sections):
-    if not filepath.is_file():
-        return [f"{filepath.name} missing"]
-    content = filepath.read_text(encoding="utf-8")
-    errors = []
-    section_groups = required_sections.get("section_groups", [])
-    for aliases in section_groups:
-        if not file_has_heading_alias(content, aliases):
-            errors.append(
-                f"{filepath.name} missing section ({' / '.join(aliases)})"
-            )
-    if required_sections.get("require_status", False) and not status_line_present(content):
-        errors.append(f"{filepath.name} missing Status line")
-    return errors
-
-
-def gate_orchestration(base_dir):
-    engine = OrchestrationEngine(base_dir)
-    status = engine.evaluate()
-    if not status.valid:
-        return GateResult(
-            "O",
-            "Orchestration state order",
-            False,
-            "; ".join(status.violations),
-        )
-    if status.stage == "uninitialized":
-        return GateResult(
-            "O",
-            "Orchestration state order",
-            False,
-            "intake artifacts are incomplete",
-        )
-    return GateResult("O", "Orchestration state order", True, f"OK ({status.stage})")
-
-
-def gate_kernel(base_dir):
-    analysis_dir = base_dir / "02_analysis"
-    if not analysis_dir.is_dir():
-        return GateResult("A", "Kernel completeness", False, "02_analysis missing")
-    failures = []
-    for filename, requirements in KERNEL_REQUIREMENTS.items():
-        filepath = analysis_dir / filename
-        failures.extend(validate_kernel_content(filepath, requirements))
-    if failures:
-        return GateResult("A", "Kernel completeness", False, "; ".join(failures))
-    return GateResult("A", "Kernel completeness", True, "OK")
-
-
-def gate_decision_state(base_dir):
-    required = ["Decision State", "What This Memo Does Not Say"]
-    memo_files = find_memo_files(base_dir)
-    if not memo_files:
-        return GateResult("B", "Decision state validity", False, "No memo files found")
-    failures = []
-    for memo in memo_files:
-        content = memo.read_text(encoding="utf-8")
-        missing = has_sections(content, required)
-        if missing:
-            failures.append(f"{memo.name} missing {', '.join(missing)}")
-            continue
-        state = parse_decision_state(content)
-        if state is None:
-            failures.append(f"{memo.name} has no decision state marked")
-            continue
-        if state == "Multiple":
-            failures.append(f"{memo.name} has multiple decision states marked")
-            continue
-        if state == "Pause" and not section_has_list_items(content, "Missing Information List"):
-            failures.append(
-                f"{memo.name} Pause requires 'Missing Information List' with list items"
-            )
-        if state == "Avoid" and not section_has_content(content, "Rationale Summary"):
-            failures.append(f"{memo.name} Avoid requires non-empty 'Rationale Summary'")
-        if state == "Proceed":
-            blockers = kernel_has_blockers(base_dir)
-            if blockers:
-                failures.append(
-                    f"{memo.name} Proceed invalid due to kernel blockers: {', '.join(blockers)}"
-                )
-    if failures:
-        return GateResult("B", "Decision state validity", False, "; ".join(failures))
-    return GateResult("B", "Decision state validity", True, "OK")
-
-
-def load_language_rules():
-    rules_path = ROOT / "00_governance" / "LANGUAGE_RULES.yml"
-    data = parse_simple_yaml(rules_path)
-    forbidden = data.get("forbidden_terms", []) or []
-    required_sections = data.get("required_sections", []) or []
-    required_phrases = data.get("required_phrases", []) or []
-    return forbidden, required_sections, required_phrases
-
-
-def gate_language(base_dir):
-    memo_files = find_memo_files(base_dir)
-    if not memo_files:
-        return GateResult("C", "Language lint", False, "No memo files found")
-    forbidden, required_sections, required_phrases = load_language_rules()
-    violations = []
-    missing_sections = {}
-    missing_phrases = {}
-    for memo in memo_files:
-        content = memo.read_text(encoding="utf-8")
-        bad_terms = [term for term in forbidden if phrase_present(content, term)]
-        if bad_terms:
-            violations.append(f"{memo.name} contains {', '.join(sorted(set(bad_terms)))}")
-        if required_sections:
-            missing = has_sections(content, required_sections)
-            if missing:
-                missing_sections[memo.name] = missing
-        if required_phrases:
-            missing = [phrase for phrase in required_phrases if not phrase_present(content, phrase)]
-            if missing:
-                missing_phrases[memo.name] = missing
-    if violations or missing_sections or missing_phrases:
-        details = []
-        if violations:
-            details.append("; ".join(violations))
-        if missing_sections:
-            details.append(
-                "; ".join(
-                    f"{name} missing {', '.join(sections)}"
-                    for name, sections in sorted(missing_sections.items())
-                )
-            )
-        if missing_phrases:
-            details.append(
-                "; ".join(
-                    f"{name} missing phrases {', '.join(phrases)}"
-                    for name, phrases in sorted(missing_phrases.items())
-                )
-            )
-        return GateResult("C", "Language lint", False, " | ".join(details))
-    return GateResult("C", "Language lint", True, "OK")
-
-
-def gate_manifest(base_dir):
-    manifest_path = base_dir / "04_package" / "manifest.json"
-    if not manifest_path.is_file():
-        return GateResult("D", "Packaging integrity", False, "manifest.json missing")
-    try:
-        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        return GateResult("D", "Packaging integrity", False, f"manifest.json invalid: {exc}")
-    files = manifest.get("files")
-    if not isinstance(files, list):
-        return GateResult("D", "Packaging integrity", False, "manifest.json files must be a list")
-    manifest_map = {}
-    for entry in files:
-        if not isinstance(entry, dict):
-            return GateResult("D", "Packaging integrity", False, "manifest entry must be object")
-        path = entry.get("path")
-        sha256 = entry.get("sha256")
-        size = entry.get("size")
-        mtime = entry.get("mtime")
-        if not path or not sha256 or size is None or mtime is None:
-            return GateResult("D", "Packaging integrity", False, "manifest entry missing fields")
-        manifest_map[path] = {"sha256": sha256, "size": int(size), "mtime": int(mtime)}
-    missing_files = [rel for rel in ALLOWLIST_FILES if not (base_dir / rel).is_file()]
-    if missing_files:
-        return GateResult(
-            "D", "Packaging integrity", False, "missing: " + ", ".join(missing_files)
-        )
-    missing_entries = [rel for rel in ALLOWLIST_FILES if rel not in manifest_map]
-    if missing_entries:
-        return GateResult(
-            "D", "Packaging integrity", False, "missing: " + ", ".join(missing_entries)
-        )
-    expected = compute_manifest(base_dir)["files"]
-    expected_map = {entry["path"]: entry for entry in expected}
-    if set(manifest_map.keys()) != set(expected_map.keys()):
-        missing = sorted(set(expected_map.keys()) - set(manifest_map.keys()))
-        extra = sorted(set(manifest_map.keys()) - set(expected_map.keys()))
-        parts = []
-        if missing:
-            parts.append("missing: " + ", ".join(missing))
-        if extra:
-            parts.append("extra: " + ", ".join(extra))
-        return GateResult("D", "Packaging integrity", False, " | ".join(parts))
-    mismatches = []
-    for path, expected_entry in expected_map.items():
-        if path == "04_package/manifest.json":
-            continue
-        actual = manifest_map[path]
-        if actual["sha256"] != expected_entry["sha256"]:
-            mismatches.append(f"hash {path}")
-        if actual["mtime"] != expected_entry["mtime"]:
-            mismatches.append(f"mtime {path}")
-    if mismatches:
-        return GateResult("D", "Packaging integrity", False, "mismatch: " + ", ".join(mismatches))
-    return GateResult("D", "Packaging integrity", True, "OK")
-
-
-def gate_sources(base_dir):
-    manifest_path = base_dir / "01_sources" / "sources_manifest.json"
-    if not manifest_path.is_file():
-        return GateResult("E", "Sources manifest", False, "01_sources/sources_manifest.json missing")
-    try:
-        payload = json.loads(manifest_path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        return GateResult("E", "Sources manifest", False, f"sources_manifest.json invalid: {exc}")
-    sources = payload.get("sources")
-    if not isinstance(sources, list) or not sources:
-        return GateResult("E", "Sources manifest", False, "sources must contain at least one entry")
-    for idx, entry in enumerate(sources, start=1):
-        if not isinstance(entry, dict):
-            return GateResult("E", "Sources manifest", False, f"source {idx} must be an object")
-        missing = [field for field in ["id", "type", "tier", "description"] if not entry.get(field)]
-        if missing:
-            return GateResult(
-                "E",
-                "Sources manifest",
-                False,
-                f"source {idx} missing required fields: {', '.join(missing)}",
-            )
-    return GateResult("E", "Sources manifest", True, "OK")
-
-
 def plugin_runtime_context(slug, base_dir):
     return {
         "slug": slug,
@@ -584,41 +45,12 @@ def plugin_runtime_context(slug, base_dir):
     }
 
 
-def run_gates(base_dir, slug, plugin_manager=None):
-    results = [
-        gate_orchestration(base_dir),
-        gate_kernel(base_dir),
-        gate_decision_state(base_dir),
-        gate_language(base_dir),
-        gate_manifest(base_dir),
-        gate_sources(base_dir),
-    ]
-    if plugin_manager is not None:
-        context = plugin_runtime_context(slug, base_dir)
-        context["core_gate_results"] = [result.as_dict() for result in results]
-        findings = plugin_manager.evaluate_policy(context)
-        for idx, finding in enumerate(findings, start=1):
-            gate_id = finding.gate_id.strip() if finding.gate_id.strip() else f"P{idx}"
-            results.append(GateResult(gate_id, finding.name, finding.status, finding.detail))
-    return results
-
-
-def print_results(results):
-    for result in results:
-        status = "PASS" if result.status else "FAIL"
-        print(f"{result.gate_id} {status}: {result.name} - {result.detail}")
-
-
-def write_gate_report(base_dir, slug, results):
-    report = {
-        "slug": slug,
-        "generated_at": utc_now(),
-        "status": "pass" if all(r.status for r in results) else "fail",
-        "gates": [r.as_dict() for r in results],
-    }
-    path = base_dir / "04_package" / "gate_report.json"
-    write_json(path, report)
-    return report
+def _resolve_session_id():
+    for key in ["CODEX_SESSION_ID", "OPENAI_SESSION_ID", "SESSION_ID"]:
+        value = os.environ.get(key, "").strip()
+        if value:
+            return f"{key}={value}"
+    return "session=unknown"
 
 
 def cmd_init_client(slug):
@@ -635,8 +67,8 @@ def cmd_init_client(slug):
         "05_change_log",
     ]:
         (base_dir / name).mkdir(parents=True, exist_ok=True)
-    memo_path = base_dir / "03_memo" / "Decision_Memo.md"
-    memo_path.write_text(
+
+    memo_text = (
         "# Decision Memo\n\n"
         "## Decision State\n"
         "- [ ] Proceed\n"
@@ -647,10 +79,12 @@ def cmd_init_client(slug):
         "## What This Memo Does Not Say\n"
         "- It does not commit to outcomes or timelines.\n"
         "- It does not provide licensed professional advice.\n"
-        "- Non-representational advisory only.\n",
-        encoding="utf-8",
+        "- Non-representational advisory only.\n"
     )
-    write_manifest(base_dir)
+    memo_path = base_dir / "03_memo" / "Decision_Memo.md"
+    memo_path.write_text(memo_text, encoding="utf-8")
+
+    initialize_package_skeleton(base_dir, slug)
     print(f"Initialized client: {slug}")
 
 
@@ -661,20 +95,23 @@ def cmd_validate(slug, base_dir=None, plugin_manager=None, quiet=False):
     if not base_dir.is_dir():
         print(f"ERROR: Client slug not found: {slug}", file=sys.stderr)
         return 2, []
+
     plugin_manager = plugin_manager or PluginManager()
     context = plugin_runtime_context(slug, base_dir)
     plugin_manager.workflow_before_stage("validate", context)
-    results = run_gates(base_dir, slug=slug, plugin_manager=plugin_manager)
+    results = run_gates(
+        base_dir,
+        slug=slug,
+        plugin_manager=plugin_manager,
+        plugin_runtime_context=plugin_runtime_context,
+    )
     if not quiet:
         print_results(results)
-    exit_code = 1
-    if all(r.status for r in results):
-        if not quiet:
-            print("VALIDATION: PASS")
-        exit_code = 0
-    else:
-        if not quiet:
-            print("VALIDATION: FAIL")
+
+    exit_code = 0 if all(r.status for r in results) else 1
+    if not quiet:
+        print("VALIDATION: PASS" if exit_code == 0 else "VALIDATION: FAIL")
+
     plugin_manager.workflow_after_stage(
         "validate",
         {
@@ -686,22 +123,188 @@ def cmd_validate(slug, base_dir=None, plugin_manager=None, quiet=False):
     return exit_code, results
 
 
+def cmd_build_memo(slug, base_dir=None, plugin_manager=None, quiet=False):
+    if base_dir is None:
+        validate_slug(slug)
+        base_dir = slug_path(slug)
+    if not base_dir.is_dir():
+        print(f"ERROR: Client slug not found: {slug}", file=sys.stderr)
+        return 2
+
+    plugin_manager = plugin_manager or PluginManager()
+    context = plugin_runtime_context(slug, base_dir)
+    plugin_manager.workflow_before_stage("build-memo", context)
+
+    try:
+        artifacts = build_memo_artifacts(base_dir, slug)
+        write_manifest(base_dir, command_name="build-memo")
+    except RuntimeError as exc:
+        plugin_manager.workflow_after_stage(
+            "build-memo",
+            {
+                **context,
+                "exit_code": 1,
+                "result": "fail",
+                "error": str(exc),
+            },
+        )
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+
+    plugin_manager.workflow_after_stage(
+        "build-memo",
+        {
+            **context,
+            "exit_code": 0,
+            "result": "pass",
+            "memo_pdf": artifacts["memo_pdf"],
+        },
+    )
+    if not quiet:
+        print(f"BUILD-MEMO: PASS ({artifacts['memo_pdf']})")
+    return 0
+
+
+def cmd_package(slug, base_dir=None, plugin_manager=None, quiet=False, skip_build=False):
+    if base_dir is None:
+        validate_slug(slug)
+        base_dir = slug_path(slug)
+    if not base_dir.is_dir():
+        print(f"ERROR: Client slug not found: {slug}", file=sys.stderr)
+        return 2, []
+
+    plugin_manager = plugin_manager or PluginManager()
+    context = plugin_runtime_context(slug, base_dir)
+    plugin_manager.workflow_before_stage("package", context)
+
+    if not skip_build:
+        build_exit = cmd_build_memo(
+            slug,
+            base_dir=base_dir,
+            plugin_manager=plugin_manager,
+            quiet=True,
+        )
+        if build_exit != 0:
+            plugin_manager.workflow_after_stage(
+                "package",
+                {
+                    **context,
+                    "exit_code": build_exit,
+                    "result": "fail",
+                    "error": "build-memo failed",
+                },
+            )
+            return build_exit, []
+
+    gate_report_path = base_dir / "04_package" / "gate_report.json"
+    if not gate_report_path.is_file():
+        write_json(
+            gate_report_path,
+            {
+                "slug": slug,
+                "generated_at": utc_now(),
+                "status": "pending",
+                "gates": [],
+            },
+        )
+
+    write_manifest(base_dir, command_name="package")
+    exit_code, results = cmd_validate(
+        slug,
+        base_dir=base_dir,
+        plugin_manager=plugin_manager,
+        quiet=True,
+    )
+    write_gate_report(base_dir, slug, results)
+
+    append_runlog_event(
+        base_dir,
+        {
+            "timestamp": utc_now(),
+            "slug": slug,
+            "command": "package",
+            "status": "pass" if exit_code == 0 else "fail",
+            "gates": [result.as_dict() for result in results],
+        },
+    )
+    write_manifest(base_dir, command_name="package")
+
+    if not quiet:
+        print_results(results)
+        print("PACKAGE: PASS" if exit_code == 0 else "PACKAGE: FAIL")
+
+    plugin_manager.workflow_after_stage(
+        "package",
+        {
+            **context,
+            "exit_code": exit_code,
+            "result": "pass" if exit_code == 0 else "fail",
+        },
+    )
+    return exit_code, results
+
+
+def _non_packaging_failures(results):
+    return [result for result in results if not result.status and result.gate_id != "D"]
+
+
 def cmd_run(slug, plugin_manager=None):
     validate_slug(slug)
     base_dir = slug_path(slug)
     if not base_dir.is_dir():
         raise RuntimeError(f"Client slug not found: {slug}")
+
     plugin_manager = plugin_manager or PluginManager()
     context = plugin_runtime_context(slug, base_dir)
     plugin_manager.workflow_before_stage("run", context)
-    gate_report_path = base_dir / "04_package" / "gate_report.json"
-    if not gate_report_path.is_file():
-        gate_report_path.parent.mkdir(parents=True, exist_ok=True)
-        gate_report_path.write_text("{}", encoding="utf-8")
-    write_manifest(base_dir)
-    exit_code, results = cmd_validate(slug, base_dir=base_dir, plugin_manager=plugin_manager)
-    write_gate_report(base_dir, slug, results)
-    write_manifest(base_dir)
+
+    pre_exit, pre_results = cmd_validate(
+        slug,
+        base_dir=base_dir,
+        plugin_manager=plugin_manager,
+        quiet=True,
+    )
+    blocking = _non_packaging_failures(pre_results)
+    if blocking:
+        print_results(pre_results)
+        print("RUN: BLOCKED (non-packaging gates failed before build/package)")
+        plugin_manager.workflow_after_stage(
+            "run",
+            {
+                **context,
+                "exit_code": pre_exit,
+                "result": "fail",
+            },
+        )
+        sys.exit(1)
+
+    build_exit = cmd_build_memo(
+        slug,
+        base_dir=base_dir,
+        plugin_manager=plugin_manager,
+        quiet=True,
+    )
+    if build_exit != 0:
+        print("RUN: BLOCKED (build-memo failed)")
+        plugin_manager.workflow_after_stage(
+            "run",
+            {
+                **context,
+                "exit_code": build_exit,
+                "result": "fail",
+            },
+        )
+        sys.exit(build_exit)
+
+    exit_code, results = cmd_package(
+        slug,
+        base_dir=base_dir,
+        plugin_manager=plugin_manager,
+        quiet=True,
+        skip_build=True,
+    )
+
+    print_results(results)
     if exit_code != 0:
         print("RUN: BLOCKED (package stage requires all gates to pass)")
         plugin_manager.workflow_after_stage(
@@ -713,6 +316,7 @@ def cmd_run(slug, plugin_manager=None):
             },
         )
         sys.exit(exit_code)
+
     engine = OrchestrationEngine(base_dir)
     try:
         engine.require_package_allowed(results)
@@ -728,30 +332,67 @@ def cmd_run(slug, plugin_manager=None):
             },
         )
         sys.exit(1)
+
     run_timestamp = datetime.now(timezone.utc)
     run_dir = ROOT / "runs" / run_timestamp.strftime(f"%Y%m%d_{slug}_%H%M%SZ")
     run_dir.mkdir(parents=True, exist_ok=True)
+
+    append_runlog_event(
+        base_dir,
+        {
+            "timestamp": utc_now(),
+            "slug": slug,
+            "command": "run",
+            "status": "pass",
+            "run_dir": run_dir.as_posix(),
+        },
+    )
+    write_manifest(base_dir, command_name="run")
+
     manifest_src = base_dir / "04_package" / "manifest.json"
     gate_report_src = base_dir / "04_package" / "gate_report.json"
+    runlog_src = base_dir / "04_package" / "runlog.jsonl"
+
     manifest_dst = run_dir / "manifest.json"
     gate_report_dst = run_dir / "gate_report.json"
+    runlog_dst = run_dir / "runlog.jsonl"
+
     shutil.copy2(manifest_src, manifest_dst)
     shutil.copy2(gate_report_src, gate_report_dst)
+    shutil.copy2(runlog_src, runlog_dst)
+
     generated_at = run_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
-    status = "pass" if exit_code == 0 else "fail"
     build_log_path = run_dir / "build_log.txt"
-    build_log_path.write_text(f"{generated_at} {status}\n", encoding="utf-8")
+    build_log_path.write_text(f"{generated_at} pass\n", encoding="utf-8")
+
+    session_pointer_path = run_dir / "codex_session_pointer.txt"
+    session_pointer_path.write_text(
+        "\n".join(
+            [
+                _resolve_session_id(),
+                f"generated_at={generated_at}",
+                f"slug={slug}",
+                f"package_runlog={(base_dir / '04_package' / 'runlog.jsonl').resolve().as_posix()}",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
     record = {
         "slug": slug,
         "generated_at": generated_at,
-        "status": status,
+        "status": "pass",
         "manifest": manifest_dst.resolve().as_posix(),
         "gate_report": gate_report_dst.resolve().as_posix(),
+        "runlog": runlog_dst.resolve().as_posix(),
         "build_log": build_log_path.resolve().as_posix(),
+        "codex_session_pointer": session_pointer_path.resolve().as_posix(),
         "plugins": plugin_manager.active_plugins(),
     }
     record_path = run_dir / "run_record.json"
     write_json(record_path, record)
+
     plugin_manager.workflow_after_stage(
         "run",
         {
@@ -761,6 +402,7 @@ def cmd_run(slug, plugin_manager=None):
             "result": "pass",
         },
     )
+    print(f"RUN: PASS ({run_dir.as_posix()})")
 
 
 def parse_eval_suite(path):
@@ -811,6 +453,7 @@ def parse_eval_suite(path):
             current["gate"] = value.upper()
     if current is not None:
         cases.append(current)
+
     normalized = []
     for idx, case in enumerate(cases, start=1):
         case_path = str(case.get("path", "")).strip()
@@ -836,6 +479,7 @@ def cmd_eval(plugin_manager=None, include_negative=False):
     plugin_manager = plugin_manager or PluginManager()
     suite_path = ROOT / "04_evals" / "regression_suite.yml"
     cases = parse_eval_suite(suite_path)
+
     selected_cases = []
     for case in cases:
         if case["expect"] == "fail" and not include_negative:
@@ -843,6 +487,7 @@ def cmd_eval(plugin_manager=None, include_negative=False):
         selected_cases.append(case)
     if not selected_cases:
         raise RuntimeError("No cases selected from regression_suite.yml")
+
     plugin_manager.workflow_before_stage(
         "eval",
         {
@@ -850,6 +495,7 @@ def cmd_eval(plugin_manager=None, include_negative=False):
             "include_negative": include_negative,
         },
     )
+
     failures = 0
     expected_failures = 0
     for case in selected_cases:
@@ -860,11 +506,13 @@ def cmd_eval(plugin_manager=None, include_negative=False):
         expected_gate = case["gate"]
         context = plugin_runtime_context(slug, base_dir)
         plugin_manager.eval_before_case(case_path, slug, context)
+
         if not base_dir.is_dir():
             print(f"EVAL CASE FAIL: {case_path} (missing directory)")
             failures += 1
             plugin_manager.eval_after_case(case_path, slug, 1, {**context, "status": "missing"})
             continue
+
         exit_code, results = cmd_validate(
             slug,
             base_dir=base_dir,
@@ -879,6 +527,7 @@ def cmd_eval(plugin_manager=None, include_negative=False):
             exit_code,
             {**context, "status": status, "failed_gate": failed_gate or ""},
         )
+
         if expect == "pass":
             if exit_code == 0:
                 print(f"EVAL CASE PASS: {case_path}")
@@ -888,12 +537,14 @@ def cmd_eval(plugin_manager=None, include_negative=False):
                 )
                 failures += 1
             continue
+
         gate_ok = expected_gate is None or expected_gate == failed_gate
         if exit_code != 0 and gate_ok:
             expected_failures += 1
             gate_detail = f" gate {failed_gate}" if failed_gate else ""
             print(f"EVAL CASE PASS: {case_path} (expected{gate_detail})")
             continue
+
         if exit_code == 0:
             print(f"EVAL CASE FAIL: {case_path} expected failure but passed")
         else:
@@ -901,6 +552,7 @@ def cmd_eval(plugin_manager=None, include_negative=False):
                 f"EVAL CASE FAIL: {case_path} expected gate {expected_gate} but failed at {failed_gate}"
             )
         failures += 1
+
     if failures:
         print(f"EVAL: FAIL ({failures} case(s))")
         plugin_manager.workflow_after_stage(
@@ -914,6 +566,7 @@ def cmd_eval(plugin_manager=None, include_negative=False):
             },
         )
         sys.exit(1)
+
     summary = (
         f"EVAL: PASS ({len(selected_cases)} case(s), {expected_failures} expected failures)"
         if include_negative
@@ -961,7 +614,21 @@ def build_parser():
         help="Comma-separated allowlisted plugin ids, or 'all'",
     )
 
-    run = sub.add_parser("run", help="Run validation and package outputs")
+    build_memo = sub.add_parser("build-memo", help="Build memo artifacts for a client workspace")
+    build_memo.add_argument("slug")
+    build_memo.add_argument(
+        "--plugins",
+        help="Comma-separated allowlisted plugin ids, or 'all'",
+    )
+
+    package = sub.add_parser("package", help="Package deliverables and validate all gates")
+    package.add_argument("slug")
+    package.add_argument(
+        "--plugins",
+        help="Comma-separated allowlisted plugin ids, or 'all'",
+    )
+
+    run = sub.add_parser("run", help="Run validation, build-memo, and package")
     run.add_argument("slug")
     run.add_argument(
         "--plugins",
@@ -988,20 +655,32 @@ def main():
     if args.command == "init-client":
         cmd_init_client(args.slug)
         return
+
     plugin_manager = None
-    if args.command in {"validate", "run", "eval"}:
+    if args.command in {"validate", "build-memo", "package", "run", "eval"}:
         enabled_plugins = parse_enabled_plugins(getattr(args, "plugins", None))
         try:
             plugin_manager = build_plugin_manager(enabled_plugins)
         except PluginConfigError as exc:
             print(f"ERROR: {exc}", file=sys.stderr)
             sys.exit(2)
+
     if args.command == "validate":
         exit_code, _ = cmd_validate(args.slug, plugin_manager=plugin_manager)
         sys.exit(exit_code)
+
+    if args.command == "build-memo":
+        exit_code = cmd_build_memo(args.slug, plugin_manager=plugin_manager)
+        sys.exit(exit_code)
+
+    if args.command == "package":
+        exit_code, _ = cmd_package(args.slug, plugin_manager=plugin_manager)
+        sys.exit(exit_code)
+
     if args.command == "run":
         cmd_run(args.slug, plugin_manager=plugin_manager)
         return
+
     if args.command == "eval":
         cmd_eval(
             plugin_manager=plugin_manager,

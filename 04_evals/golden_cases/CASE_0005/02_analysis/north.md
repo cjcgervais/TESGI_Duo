@@ -59,6 +59,10 @@
 - "Value-add" opportunity is actually "capital destruction" at current funding level
 - Sophisticated investors with environmental expertise may find value; this client will not
 
+
+## Uncertainties
+- Residual uncertainty remains and is explicitly bounded for this leg.
+
 ## NORTH Status: FAIL
 
 Decision does not make sense over time given known constraints. Remediation costs exceed client budget. Timeline exceeds stated hold period.
