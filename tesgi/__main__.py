@@ -9,6 +9,7 @@ from pathlib import Path
 
 from . import __version__
 from .orchestration import OrchestrationEngine, OrchestrationError
+from .plugins import PluginConfigError, PluginManager
 
 ROOT = Path(__file__).resolve().parents[1]
 ALLOWLIST_FILES = (
@@ -513,14 +514,30 @@ def gate_manifest(base_dir):
     return GateResult("D", "Packaging integrity", True, "OK")
 
 
-def run_gates(base_dir):
-    return [
+def plugin_runtime_context(slug, base_dir):
+    return {
+        "slug": slug,
+        "base_dir": base_dir.as_posix(),
+        "telemetry_log_path": (base_dir / "05_change_log" / "plugin_telemetry.jsonl").as_posix(),
+    }
+
+
+def run_gates(base_dir, slug, plugin_manager=None):
+    results = [
         gate_orchestration(base_dir),
         gate_kernel(),
         gate_decision_state(base_dir),
         gate_language(base_dir),
         gate_manifest(base_dir),
     ]
+    if plugin_manager is not None:
+        context = plugin_runtime_context(slug, base_dir)
+        context["core_gate_results"] = [result.as_dict() for result in results]
+        findings = plugin_manager.evaluate_policy(context)
+        for idx, finding in enumerate(findings, start=1):
+            gate_id = finding.gate_id.strip() if finding.gate_id.strip() else f"P{idx}"
+            results.append(GateResult(gate_id, finding.name, finding.status, finding.detail))
+    return results
 
 
 def print_results(results):
@@ -574,43 +591,76 @@ def cmd_init_client(slug):
     print(f"Initialized client: {slug}")
 
 
-def cmd_validate(slug, base_dir=None):
+def cmd_validate(slug, base_dir=None, plugin_manager=None):
     if base_dir is None:
         validate_slug(slug)
         base_dir = slug_path(slug)
     if not base_dir.is_dir():
         print(f"ERROR: Client slug not found: {slug}", file=sys.stderr)
         return 2, []
-    results = run_gates(base_dir)
+    plugin_manager = plugin_manager or PluginManager()
+    context = plugin_runtime_context(slug, base_dir)
+    plugin_manager.workflow_before_stage("validate", context)
+    results = run_gates(base_dir, slug=slug, plugin_manager=plugin_manager)
     print_results(results)
+    exit_code = 1
     if all(r.status for r in results):
         print("VALIDATION: PASS")
-        return 0, results
-    print("VALIDATION: FAIL")
-    return 1, results
+        exit_code = 0
+    else:
+        print("VALIDATION: FAIL")
+    plugin_manager.workflow_after_stage(
+        "validate",
+        {
+            **context,
+            "exit_code": exit_code,
+            "result": "pass" if exit_code == 0 else "fail",
+        },
+    )
+    return exit_code, results
 
 
-def cmd_run(slug):
+def cmd_run(slug, plugin_manager=None):
     validate_slug(slug)
     base_dir = slug_path(slug)
     if not base_dir.is_dir():
         raise RuntimeError(f"Client slug not found: {slug}")
+    plugin_manager = plugin_manager or PluginManager()
+    context = plugin_runtime_context(slug, base_dir)
+    plugin_manager.workflow_before_stage("run", context)
     gate_report_path = base_dir / "04_package" / "gate_report.json"
     if not gate_report_path.is_file():
         gate_report_path.parent.mkdir(parents=True, exist_ok=True)
         gate_report_path.write_text("{}", encoding="utf-8")
     write_manifest(base_dir)
-    exit_code, results = cmd_validate(slug, base_dir=base_dir)
+    exit_code, results = cmd_validate(slug, base_dir=base_dir, plugin_manager=plugin_manager)
     write_gate_report(base_dir, slug, results)
     write_manifest(base_dir)
     if exit_code != 0:
         print("RUN: BLOCKED (package stage requires all gates to pass)")
+        plugin_manager.workflow_after_stage(
+            "run",
+            {
+                **context,
+                "exit_code": exit_code,
+                "result": "fail",
+            },
+        )
         sys.exit(exit_code)
     engine = OrchestrationEngine(base_dir)
     try:
         engine.require_package_allowed(results)
     except OrchestrationError as exc:
         print(f"ERROR: Package stage blocked by orchestration: {exc}", file=sys.stderr)
+        plugin_manager.workflow_after_stage(
+            "run",
+            {
+                **context,
+                "exit_code": 1,
+                "result": "fail",
+                "error": str(exc),
+            },
+        )
         sys.exit(1)
     run_timestamp = datetime.now(timezone.utc)
     run_dir = ROOT / "runs" / run_timestamp.strftime(f"%Y%m%d_{slug}_%H%M%SZ")
@@ -632,32 +682,84 @@ def cmd_run(slug):
         "manifest": manifest_dst.resolve().as_posix(),
         "gate_report": gate_report_dst.resolve().as_posix(),
         "build_log": build_log_path.resolve().as_posix(),
+        "plugins": plugin_manager.active_plugins(),
     }
     record_path = run_dir / "run_record.json"
     write_json(record_path, record)
+    plugin_manager.workflow_after_stage(
+        "run",
+        {
+            **context,
+            "run_dir": run_dir.as_posix(),
+            "exit_code": 0,
+            "result": "pass",
+        },
+    )
 
 
-def cmd_eval():
+def cmd_eval(plugin_manager=None):
+    plugin_manager = plugin_manager or PluginManager()
     suite_path = ROOT / "04_evals" / "regression_suite.yml"
     data = parse_simple_yaml(suite_path)
     case_paths = data.get("cases") or []
     if not case_paths:
         raise RuntimeError("No cases defined in regression_suite.yml")
+    plugin_manager.workflow_before_stage("eval", {"suite_path": suite_path.as_posix()})
     failures = 0
     for case_path in case_paths:
         base_dir = ROOT / case_path
         slug = base_dir.name
+        context = plugin_runtime_context(slug, base_dir)
+        plugin_manager.eval_before_case(case_path, slug, context)
         if not base_dir.is_dir():
             print(f"EVAL SKIP: {case_path} not found")
             failures += 1
+            plugin_manager.eval_after_case(case_path, slug, 1, {**context, "status": "missing"})
             continue
-        exit_code, _results = cmd_validate(slug, base_dir=base_dir)
+        exit_code, _results = cmd_validate(slug, base_dir=base_dir, plugin_manager=plugin_manager)
+        plugin_manager.eval_after_case(
+            case_path,
+            slug,
+            exit_code,
+            {**context, "status": "pass" if exit_code == 0 else "fail"},
+        )
         if exit_code != 0:
             failures += 1
     if failures:
         print(f"EVAL: FAIL ({failures} case(s))")
+        plugin_manager.workflow_after_stage(
+            "eval",
+            {
+                "suite_path": suite_path.as_posix(),
+                "failures": failures,
+                "result": "fail",
+            },
+        )
         sys.exit(1)
     print("EVAL: PASS")
+    plugin_manager.workflow_after_stage(
+        "eval",
+        {
+            "suite_path": suite_path.as_posix(),
+            "failures": 0,
+            "result": "pass",
+        },
+    )
+
+
+def parse_enabled_plugins(value):
+    if value is None:
+        return None
+    parts = [part.strip() for part in value.split(",")]
+    return [part for part in parts if part]
+
+
+def build_plugin_manager(enabled_plugins):
+    allowlist_path = ROOT / "00_governance" / "PLUGIN_ALLOWLIST.json"
+    return PluginManager.from_allowlist(
+        allowlist_path=allowlist_path,
+        enabled_plugin_ids=enabled_plugins,
+    )
 
 
 def build_parser():
@@ -669,11 +771,23 @@ def build_parser():
 
     validate = sub.add_parser("validate", help="Validate client workspace")
     validate.add_argument("slug")
+    validate.add_argument(
+        "--plugins",
+        help="Comma-separated allowlisted plugin ids, or 'all'",
+    )
 
     run = sub.add_parser("run", help="Run validation and package outputs")
     run.add_argument("slug")
+    run.add_argument(
+        "--plugins",
+        help="Comma-separated allowlisted plugin ids, or 'all'",
+    )
 
-    sub.add_parser("eval", help="Run evaluation suite")
+    eval_cmd = sub.add_parser("eval", help="Run evaluation suite")
+    eval_cmd.add_argument(
+        "--plugins",
+        help="Comma-separated allowlisted plugin ids, or 'all'",
+    )
     return parser
 
 
@@ -684,14 +798,22 @@ def main():
     if args.command == "init-client":
         cmd_init_client(args.slug)
         return
+    plugin_manager = None
+    if args.command in {"validate", "run", "eval"}:
+        enabled_plugins = parse_enabled_plugins(getattr(args, "plugins", None))
+        try:
+            plugin_manager = build_plugin_manager(enabled_plugins)
+        except PluginConfigError as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            sys.exit(2)
     if args.command == "validate":
-        exit_code, _ = cmd_validate(args.slug)
+        exit_code, _ = cmd_validate(args.slug, plugin_manager=plugin_manager)
         sys.exit(exit_code)
     if args.command == "run":
-        cmd_run(args.slug)
+        cmd_run(args.slug, plugin_manager=plugin_manager)
         return
     if args.command == "eval":
-        cmd_eval()
+        cmd_eval(plugin_manager=plugin_manager)
         return
 
 

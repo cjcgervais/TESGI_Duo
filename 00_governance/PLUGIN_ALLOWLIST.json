@@ -1,0 +1,52 @@
+{
+  "plugins": [
+    {
+      "id": "noop_workflow",
+      "type": "workflow_plugin",
+      "module": "tesgi.plugins.reference",
+      "class": "NoOpWorkflowPlugin",
+      "version": "1.0.0",
+      "enabled_by_default": false
+    },
+    {
+      "id": "noop_policy",
+      "type": "policy_plugin",
+      "module": "tesgi.plugins.reference",
+      "class": "NoOpPolicyPlugin",
+      "version": "1.0.0",
+      "enabled_by_default": false
+    },
+    {
+      "id": "require_sources_manifest",
+      "type": "policy_plugin",
+      "module": "tesgi.plugins.reference",
+      "class": "RequireSourcesManifestPolicyPlugin",
+      "version": "1.0.0",
+      "enabled_by_default": false
+    },
+    {
+      "id": "noop_llm",
+      "type": "llm_gateway_plugin",
+      "module": "tesgi.plugins.reference",
+      "class": "NoOpLLMGatewayPlugin",
+      "version": "1.0.0",
+      "enabled_by_default": false
+    },
+    {
+      "id": "jsonl_telemetry",
+      "type": "telemetry_plugin",
+      "module": "tesgi.plugins.reference",
+      "class": "JsonlTelemetryPlugin",
+      "version": "1.0.0",
+      "enabled_by_default": false
+    },
+    {
+      "id": "noop_eval",
+      "type": "eval_plugin",
+      "module": "tesgi.plugins.reference",
+      "class": "NoOpEvalPlugin",
+      "version": "1.0.0",
+      "enabled_by_default": false
+    }
+  ]
+}
