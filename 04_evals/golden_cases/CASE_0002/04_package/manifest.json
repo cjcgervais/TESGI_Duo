@@ -1,0 +1,56 @@
+{
+  "base_dir": "04_evals/golden_cases/CASE_0002",
+  "files": [
+    {
+      "mtime": 1770355150,
+      "path": "00_intake/intake.md",
+      "sha256": "93d118549aef9db715ba8a0692cfdc50e7450b6416ffe7f04c4971f3d42d2e81",
+      "size": 1372
+    },
+    {
+      "mtime": 1770355152,
+      "path": "00_intake/intake_ack.json",
+      "sha256": "c78871ad6ca4fcd05c4c587365e52a46926fd44adadf7a6df4d456a6dd4cc639",
+      "size": 170
+    },
+    {
+      "mtime": 1770355194,
+      "path": "02_analysis/true.md",
+      "sha256": "a5e1ba2de98b3e73e2756a5ca72be231769542dbb42c169afc408305b5954ec5",
+      "size": 1655
+    },
+    {
+      "mtime": 1770355194,
+      "path": "02_analysis/north.md",
+      "sha256": "a77712b241a05572e0e915f22ea519c048ccaf4d39b3a1001e3bc87472c32e53",
+      "size": 2182
+    },
+    {
+      "mtime": 1770355196,
+      "path": "02_analysis/aligned.md",
+      "sha256": "620f76c27d3aac90bfb5ed2a49d71bc16884183a92716d7f2e628e69aae8b46d",
+      "size": 2336
+    },
+    {
+      "mtime": 1770355666,
+      "path": "03_memo/Decision_Memo.md",
+      "sha256": "cd8a994993003f3082d6e31f8af4f7f839f8260f7c867797dc57f36fa83c0505",
+      "size": 4033
+    },
+    {
+      "mtime": 1770355742,
+      "path": "04_package/manifest.json",
+      "sha256": "e398c1bfb20fa373cc0ebd1e10e88810cf25275e5cd8f69783c1e87aa23feb94",
+      "size": 1499
+    },
+    {
+      "mtime": 1770355742,
+      "path": "04_package/gate_report.json",
+      "sha256": "f7d84fe47add76085817cdfb42942c2cb2e6dd216039e442b3808dc47d041f0c",
+      "size": 69
+    }
+  ],
+  "generated_at": "2026-02-06T05:29:00Z",
+  "python_version": "3.13.0",
+  "tesgi_version": "0.1.1"
+}

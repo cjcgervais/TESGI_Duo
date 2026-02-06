@@ -1,2 +1,40 @@
+# TESGI Advisory Regression Suite
+#
+# Golden cases for gate validation testing
+# Each case must pass all gates (A-E, O) to validate system integrity
+
 cases:
+  # CASE_0001: Minimal scaffold (Pause - placeholder)
   - 04_evals/golden_cases/CASE_0001
+
+  # CASE_0002: Proceed - Clean rural purchase with comprehensive due diligence
+  # Tests: All legs PASS, Proceed decision state
+  - 04_evals/golden_cases/CASE_0002
+
+  # CASE_0003: Pause - Former industrial site missing environmental assessments
+  # Tests: TRUE FAIL (unbounded uncertainty), Pause with Missing Information List
+  - 04_evals/golden_cases/CASE_0003
+
+  # CASE_0004: Avoid - Aboriginal heritage sites and native title claim
+  # Tests: NORTH FAIL, ALIGNED FAIL, Avoid with Rationale Summary
+  - 04_evals/golden_cases/CASE_0004
+
+  # CASE_0005: Avoid - Confirmed contamination exceeding budget capacity
+  # Tests: NORTH FAIL (economics), ALIGNED FAIL (budget), Avoid with Rationale Summary
+  - 04_evals/golden_cases/CASE_0005
+
+  # CASE_0006: Pause - Unpermitted granny flat with governance/compliance gaps
+  # Tests: ALIGNED CONDITIONAL, Pause with Missing Information List
+  - 04_evals/golden_cases/CASE_0006
+
+# Case type distribution:
+# - Proceed: 1 (CASE_0002)
+# - Pause: 3 (CASE_0001, CASE_0003, CASE_0006)
+# - Avoid: 2 (CASE_0004, CASE_0005)
+#
+# Coverage:
+# - Clean ESG (CASE_0002)
+# - Missing environmental data (CASE_0003)
+# - Heritage/social constraints (CASE_0004)
+# - Confirmed contamination (CASE_0005)
+# - Governance/compliance gaps (CASE_0006)
