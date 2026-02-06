@@ -156,6 +156,31 @@ def find_memo_files(base_dir):
     return sorted(memo_files)
 
 
+def normalize_text(text):
+    normalized = text
+    replacements = {
+        "\u2019": "'",
+        "\u2018": "'",
+        "\u201c": '"',
+        "\u201d": '"',
+        "\u2013": "-",
+        "\u2014": "-",
+    }
+    for old, new in replacements.items():
+        normalized = normalized.replace(old, new)
+    return normalized
+
+
+def phrase_present(content, phrase):
+    phrase = normalize_text(phrase).strip()
+    if not phrase:
+        return False
+    tokens = phrase.split()
+    pattern = r"\b" + r"\s+".join(re.escape(token) for token in tokens) + r"\b"
+    haystack = normalize_text(content)
+    return re.search(pattern, haystack, flags=re.IGNORECASE) is not None
+
+
 def has_sections(content, sections):
     missing = []
     for section in sections:
@@ -170,6 +195,126 @@ def has_sections(content, sections):
         if not found:
             missing.append(section)
     return missing
+
+
+def extract_section(content, section_name):
+    lines = content.splitlines()
+    section_pattern = re.compile(
+        rf"^\s*#{{1,6}}\s+.*{re.escape(section_name)}.*$",
+        flags=re.IGNORECASE,
+    )
+    start = None
+    for idx, line in enumerate(lines):
+        if section_pattern.match(line):
+            start = idx + 1
+            break
+    if start is None:
+        return ""
+    end = len(lines)
+    for idx in range(start, len(lines)):
+        if re.match(r"^\s*#{1,6}\s+", lines[idx]):
+            end = idx
+            break
+    return "\n".join(lines[start:end]).strip()
+
+
+def parse_decision_states(content):
+    section = extract_section(content, "Decision State")
+    if not section:
+        return []
+    selected = []
+    for raw_line in section.splitlines():
+        line = normalize_text(raw_line).strip()
+        line_l = line.lower()
+        if not line_l:
+            continue
+        checked = ("[x]" in line_l) or ("\u2611" in line)
+        if not checked:
+            continue
+        if "proceed" in line_l:
+            selected.append("Proceed")
+        if "pause" in line_l:
+            selected.append("Pause")
+        if "avoid" in line_l or "walk away" in line_l:
+            selected.append("Avoid")
+    unique = []
+    for state in ["Proceed", "Pause", "Avoid"]:
+        if state in selected:
+            unique.append(state)
+    if unique:
+        return unique
+    explicit = re.search(
+        r"decision\s*state\s*:\s*(proceed|pause|avoid|walk\s*away)",
+        normalize_text(content),
+        flags=re.IGNORECASE,
+    )
+    if not explicit:
+        return []
+    value = explicit.group(1).lower().replace(" ", "")
+    if value in {"avoid", "walkaway"}:
+        return ["Avoid"]
+    if value == "pause":
+        return ["Pause"]
+    return ["Proceed"]
+
+
+def section_has_list_items(content, section_name):
+    section = extract_section(content, section_name)
+    if not section:
+        return False
+    for raw_line in section.splitlines():
+        line = raw_line.strip()
+        if re.match(r"^[-*]\s+\S+", line):
+            return True
+        if re.match(r"^\d+\.\s+\S+", line):
+            return True
+    return False
+
+
+def section_has_content(content, section_name):
+    section = extract_section(content, section_name)
+    if not section:
+        return False
+    for raw_line in section.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if re.match(r"^[-*]\s*$", line):
+            continue
+        if re.match(r"^\d+\.\s*$", line):
+            continue
+        return True
+    return False
+
+
+def proceed_blockers(base_dir):
+    blockers = []
+    marker_phrases = [
+        "unbounded uncertainty",
+        "missing required fact",
+        "missing required facts",
+        "required facts missing",
+        "critical gaps",
+    ]
+    for leg in ["true", "north", "aligned"]:
+        leg_path = base_dir / "02_analysis" / f"{leg}.md"
+        if not leg_path.is_file():
+            blockers.append(f"{leg}.md missing")
+            continue
+        content = leg_path.read_text(encoding="utf-8")
+        content_n = normalize_text(content)
+        status_match = re.search(
+            r"^\s*status\s*:\s*(pass|pause|fail)\b",
+            content_n,
+            flags=re.IGNORECASE | re.MULTILINE,
+        )
+        if status_match and status_match.group(1).lower() != "pass":
+            blockers.append(f"{leg}.md status {status_match.group(1).lower()}")
+        for phrase in marker_phrases:
+            if phrase_present(content_n, phrase):
+                blockers.append(f"{leg}.md contains '{phrase}'")
+                break
+    return blockers
 
 
 def gate_kernel():
@@ -202,52 +347,73 @@ def gate_kernel():
     return GateResult("A", "Kernel completeness", True, "OK")
 
 
-def gate_memo_sections(base_dir):
+def gate_decision_state(base_dir):
     required = ["Decision State", "What This Memo Does Not Say"]
     memo_files = find_memo_files(base_dir)
     if not memo_files:
-        return GateResult("B", "Memo required sections", False, "No memo files found")
-    missing_files = {}
+        return GateResult("B", "Decision state validity", False, "No memo files found")
+    failures = []
     for memo in memo_files:
         content = memo.read_text(encoding="utf-8")
         missing = has_sections(content, required)
         if missing:
-            missing_files[memo.name] = missing
-    if missing_files:
-        detail = "; ".join(
-            f"{name} missing {', '.join(sections)}"
-            for name, sections in sorted(missing_files.items())
-        )
-        return GateResult("B", "Memo required sections", False, detail)
-    return GateResult("B", "Memo required sections", True, "OK")
+            failures.append(f"{memo.name} missing {', '.join(missing)}")
+            continue
+        states = parse_decision_states(content)
+        if len(states) != 1:
+            failures.append(
+                f"{memo.name} must select exactly one decision state (found {len(states)})"
+            )
+            continue
+        state = states[0]
+        if state == "Pause" and not section_has_list_items(content, "Missing Information List"):
+            failures.append(
+                f"{memo.name} Pause requires 'Missing Information List' with list items"
+            )
+        if state == "Avoid" and not section_has_content(content, "Rationale Summary"):
+            failures.append(f"{memo.name} Avoid requires non-empty 'Rationale Summary'")
+        if state == "Proceed":
+            blockers = proceed_blockers(base_dir)
+            if blockers:
+                failures.append(
+                    f"{memo.name} Proceed invalid due to kernel blockers: {', '.join(blockers)}"
+                )
+    if failures:
+        return GateResult("B", "Decision state validity", False, "; ".join(failures))
+    return GateResult("B", "Decision state validity", True, "OK")
 
 
 def load_language_rules():
     rules_path = ROOT / "00_governance" / "LANGUAGE_RULES.yml"
     data = parse_simple_yaml(rules_path)
     forbidden = data.get("forbidden_terms", []) or []
-    required = data.get("required_sections", []) or []
-    return forbidden, required
+    required_sections = data.get("required_sections", []) or []
+    required_phrases = data.get("required_phrases", []) or []
+    return forbidden, required_sections, required_phrases
 
 
 def gate_language(base_dir):
     memo_files = find_memo_files(base_dir)
     if not memo_files:
         return GateResult("C", "Language lint", False, "No memo files found")
-    forbidden, required = load_language_rules()
+    forbidden, required_sections, required_phrases = load_language_rules()
     violations = []
     missing_sections = {}
+    missing_phrases = {}
     for memo in memo_files:
         content = memo.read_text(encoding="utf-8")
-        content_l = content.lower()
-        bad_terms = [term for term in forbidden if term.lower() in content_l]
+        bad_terms = [term for term in forbidden if phrase_present(content, term)]
         if bad_terms:
             violations.append(f"{memo.name} contains {', '.join(sorted(set(bad_terms)))}")
-        if required:
-            missing = has_sections(content, required)
+        if required_sections:
+            missing = has_sections(content, required_sections)
             if missing:
                 missing_sections[memo.name] = missing
-    if violations or missing_sections:
+        if required_phrases:
+            missing = [phrase for phrase in required_phrases if not phrase_present(content, phrase)]
+            if missing:
+                missing_phrases[memo.name] = missing
+    if violations or missing_sections or missing_phrases:
         details = []
         if violations:
             details.append("; ".join(violations))
@@ -256,6 +422,13 @@ def gate_language(base_dir):
                 "; ".join(
                     f"{name} missing {', '.join(sections)}"
                     for name, sections in sorted(missing_sections.items())
+                )
+            )
+        if missing_phrases:
+            details.append(
+                "; ".join(
+                    f"{name} missing phrases {', '.join(phrases)}"
+                    for name, phrases in sorted(missing_phrases.items())
                 )
             )
         return GateResult("C", "Language lint", False, " | ".join(details))
@@ -322,7 +495,7 @@ def gate_manifest(base_dir):
 def run_gates(base_dir):
     return [
         gate_kernel(),
-        gate_memo_sections(base_dir),
+        gate_decision_state(base_dir),
         gate_language(base_dir),
         gate_manifest(base_dir),
     ]
@@ -364,10 +537,15 @@ def cmd_init_client(slug):
     memo_path.write_text(
         "# Decision Memo\n\n"
         "## Decision State\n"
-        "Draft. This memo reflects current analysis and may change with new evidence.\n\n"
+        "- [ ] Proceed\n"
+        "- [x] Pause\n"
+        "- [ ] Avoid / Walk Away\n\n"
+        "## Missing Information List\n"
+        "- Add required facts and evidence before final decision.\n\n"
         "## What This Memo Does Not Say\n"
         "- It does not commit to outcomes or timelines.\n"
-        "- It does not provide licensed professional advice.\n",
+        "- It does not provide licensed professional advice.\n"
+        "- Non-representational advisory only.\n",
         encoding="utf-8",
     )
     write_manifest(base_dir)

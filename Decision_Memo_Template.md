@@ -72,18 +72,26 @@ Assessment of alignment between:
 
 ## 6. Decision State
 
-**☐ Proceed**  
+**[ ] Proceed**  
 Conditions appear reasonably satisfied to move forward with caution and awareness.
 
-**☐ Pause**  
+**[ ] Pause**  
 Additional information, clarification, or changed assumptions are required before proceeding responsibly.
 
-**☐ Avoid / Walk Away**  
+**[ ] Avoid / Walk Away**  
 Proceeding would likely rely on unresolved uncertainty, misalignment, or assumptions that cannot be responsibly supported.
 
 ---
 
-## 7. Rationale Summary
+## 7. Missing Information List (Required If Pause Is Selected)
+
+-  
+-  
+-  
+
+---
+
+## 8. Rationale Summary
 
 Key reasons supporting the decision state:
 -  
@@ -92,13 +100,14 @@ Key reasons supporting the decision state:
 
 ---
 
-## 8. What This Memo Does Not Say
+## 9. What This Memo Does Not Say
 
 This memo:
 - does not guarantee outcomes,
 - does not predict approvals, value, or timing,
 - does not recommend any specific transaction,
 - does not replace professional legal or technical advice.
+- Non-representational advisory only.
 
 Its purpose is to support informed judgment and protect against avoidable misunderstanding.
 

@@ -9,7 +9,7 @@
     {
       "detail": "OK",
       "id": "B",
-      "name": "Memo required sections",
+      "name": "Decision state validity",
       "status": "pass"
     },
     {
@@ -25,7 +25,7 @@
       "status": "pass"
     }
   ],
-  "generated_at": "2026-01-07T22:38:48Z",
+  "generated_at": "2026-02-06T04:32:23Z",
   "slug": "demo",
   "status": "pass"
 }

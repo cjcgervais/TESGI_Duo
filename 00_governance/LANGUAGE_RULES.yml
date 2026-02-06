@@ -4,10 +4,13 @@ forbidden_terms:
   - promise
   - ensure
   - will deliver
-  - represent
-  - representation
+  - we'll handle
+  - we will coordinate
+  - on your behalf
   - fiduciary
   - legal advice
 required_sections:
   - Decision State
   - What This Memo Does Not Say
+required_phrases:
+  - Non-representational advisory only

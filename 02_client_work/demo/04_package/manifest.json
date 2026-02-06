@@ -32,25 +32,25 @@
       "size": 46
     },
     {
-      "mtime": 1767822828,
+      "mtime": 1770352168,
       "path": "03_memo/Decision_Memo.md",
-      "sha256": "2a554e67e2c085438120685d0ecb6e7eb2effe7f2b74dd2d18c939f1a73a189a",
-      "size": 243
+      "sha256": "7ae81df0fbbb2ec1aff7f4da8f3e892cc5070ad2f8ca1fd88c296dceb35676d7",
+      "size": 373
     },
     {
-      "mtime": 1767825530,
+      "mtime": 1770352344,
       "path": "04_package/manifest.json",
-      "sha256": "50c9441c8dbcd71458a200649b3a576b390c9328b8d45cc3295cb7f3e8fc5853",
-      "size": 1612
+      "sha256": "7235204314ea60b6f4af2c9089e3cecd50b907c09f923da52c2b50749cad0144",
+      "size": 1668
     },
     {
-      "mtime": 1767825530,
+      "mtime": 1770352344,
       "path": "04_package/gate_report.json",
-      "sha256": "8e62d7557a2ddbcb077959dccc6a32a03400f3f6373fce43f806fdd0c68ae3d8",
-      "size": 545
+      "sha256": "9c5fb0cec25c395a5cd669d004ae116dfa77922af90f580932b5f3dbccdb74bb",
+      "size": 577
     }
   ],
-  "generated_at": "2026-01-07T22:38:49Z",
-  "python_version": "3.12.3",
+  "generated_at": "2026-02-06T04:32:23Z",
+  "python_version": "3.13.7",
   "tesgi_version": "0.1.1"
 }
