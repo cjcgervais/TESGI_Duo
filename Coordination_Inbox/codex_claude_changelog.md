@@ -684,3 +684,102 @@ Treat `Governance/TESGI_CANONICAL_SKILL_BUNDLE_v1.0.lock.json` as the canonical 
 
 - System is operationally stable (all tested commands pass) but still has spec parity gaps.
 - Report includes severity-ranked findings and phased amendment plan (Phase 0 through Phase 4).
+
+---
+
+## Codex (GPT-5) - Phase 0 through Phase 4 Completed (2026-02-06)
+
+### Scope implemented
+
+Completed the full amendment plan in `tesgi-advisory-os` and `TESGI_Claudvisor`:
+
+- Phase 0: governance consistency
+- Phase 1: command + packaging parity
+- Phase 2: gate/orchestration deepening
+- Phase 3: adapter + hygiene hardening
+- Phase 4: validator/packager modular split
+
+### Phase 0 outputs
+
+- Added bootstrap ADR:
+  - `tesgi-advisory-os/00_governance/ADR/ADR_0001_Governed_Self_Improvement.md`
+  - `tesgi-advisory-os/00_governance/ADR/README.md`
+- Aligned change tiers with spec framing:
+  - `tesgi-advisory-os/00_governance/CHANGE_CONTROL.md`
+- Added governance ADR references:
+  - `tesgi-advisory-os/00_governance/KERNEL.md`
+- Refreshed stale Claudvisor instruction doc:
+  - `TESGI_Claudvisor/TESGI_Advisory_Project_Instructions.md`
+  - Removed dead `scripts/validate_kernel.py` references and updated active TESGI command flow.
+
+### Phase 1 outputs
+
+- CLI command surface now includes:
+  - `tesgi build-memo <slug>`
+  - `tesgi package <slug>`
+  - `tesgi run <slug>` wired as validate -> build-memo -> package
+- Packaging parity implemented via generated artifacts:
+  - `03_memo/memo.md`
+  - `04_package/memo.pdf`
+  - `04_package/invoice.pdf`
+  - `04_package/receipt.pdf`
+  - `04_package/runlog.jsonl`
+  - `04_package/manifest.json` with tooling metadata
+- Run output now includes session pointer:
+  - `runs/<timestamp>_<slug>_<id>/codex_session_pointer.txt`
+
+### Phase 2 outputs
+
+- Gate A semantic depth increased:
+  - Enforces observations, uncertainties, and risk notes sections per kernel leg.
+- Orchestration contracts aligned to all-gates semantics for package/eval stages:
+  - `O/A/B/C/D/E`
+- Stage schema enforcement added at runtime:
+  - `tesgi/orchestration/engine.py` now validates inferred stage payload against `STAGE_SCHEMAS`.
+- Added orchestration contract tests:
+  - `tesgi-advisory-os/04_evals/tests/test_orchestration_contracts.py`
+
+### Phase 3 outputs
+
+- Adapter prune mode added with guardrails:
+  - `--sync-delete` (requires `--force`) in both adapter directions
+  - constrained pruning to mapped paths only
+- Added adapter round-trip/prune tests:
+  - `tesgi-advisory-os/03_tools/adapter/tests/test_roundtrip_sync.py`
+- Repo hygiene updated:
+  - `tesgi-advisory-os/.gitignore` updated for runtime churn paths.
+
+### Phase 4 outputs
+
+- Validator logic split out of CLI:
+  - `tesgi-advisory-os/03_tools/validators/tesgi_gate_validators.py`
+- Packager logic split out of CLI:
+  - `tesgi-advisory-os/03_tools/packagers/tesgi_packagers.py`
+- CLI now orchestrates and imports these modules:
+  - `tesgi-advisory-os/tesgi/__main__.py`
+- Added module docs:
+  - `tesgi-advisory-os/03_tools/validators/README.md`
+  - `tesgi-advisory-os/03_tools/packagers/README.md`
+
+### Validation matrix
+
+From `tesgi-advisory-os/`:
+
+- `python -m tesgi --help` -> PASS (includes build-memo/package)
+- `python -m tesgi validate demo` -> PASS
+- `python -m tesgi build-memo demo` -> PASS
+- `python -m tesgi package demo` -> PASS
+- `python -m tesgi run demo` -> PASS
+- `python -m tesgi eval` -> PASS (6 cases)
+- `python -m tesgi eval --include-negative` -> PASS (14 cases, 8 expected failures)
+- `python -m tesgi eval --include-negative --plugins all` -> PASS
+- `python 03_tools/orchestration/states.py` -> PASS
+- `python 03_tools/orchestration/engine.py demo` -> PASS
+- `python 03_tools/adapter/claude_to_tesgi.py --help` -> PASS
+- `python 03_tools/adapter/tesgi_to_claude.py --help` -> PASS
+- `python -m unittest 04_evals.tests.test_orchestration_contracts` -> PASS
+- `python -m unittest discover -s 03_tools/adapter/tests -p "test_*.py"` -> PASS
+
+### Note for Claude
+
+Use `tesgi build-memo` and `tesgi package` as first-class commands, and use adapter `--sync-delete` only with `--force` when deterministic pruning is required.
