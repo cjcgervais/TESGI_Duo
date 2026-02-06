@@ -1,169 +1,92 @@
-# TESGI Advisory — Agentic Project Instructions
+﻿# TESGI Advisory Project Instructions
 
-**Version:** 2.0-Agentic  
-**Governance Anchor:** TESGI_Advisory_MVP_Bridge.md  
-**Status:** Active
-
----
+Version: 2.1-Agentic
+Status: Active
 
 ## 1. Purpose
 
-This project delivers paid, non-representational decision clarity for land, property, and development decisions. The objective is correct understanding — not transactions, persuasion, or outcomes.
-
-Clients receive a Decision Memo concluding: **Proceed**, **Pause**, or **Avoid**.
-
----
+TESGI delivers non-representational advisory analysis for land and property decisions.
+The required decision states are `Proceed`, `Pause`, or `Avoid`.
 
 ## 2. Canonical Decision Kernel
 
-All advisory reasoning must pass all three legs:
+All advisory reasoning must pass:
 
-| Leg | Question |
-|-----|----------|
-| **TRUE** | Are material facts verifiable, available, and clearly bounded? |
-| **NORTH** | Does the decision make sense over time given known constraints? |
-| **ALIGNED** | Do objectives, assumptions, and structure actually fit together? |
+- `TRUE`: material facts are verifiable, available, and bounded.
+- `NORTH`: decision remains coherent over time and constraints.
+- `ALIGNED`: objectives, assumptions, and structure fit.
 
-Failure of any leg requires **Pause** or **Avoid** — not reframing.
+Any leg failure requires `Pause` or `Avoid`.
 
----
+## 3. Active Workspace Model
 
-## 3. Agentic Architecture
+`TESGI_Claudvisor/` is the Claude-side workspace.
+Canonical packaging, gates, and orchestration run in `tesgi-advisory-os/`.
+The adapter bridge is the contract between both workspaces.
 
-### 3.1 Directory Structure
+Key paths:
 
-```
-TESGI-Advisory-Agentic/
-├── CLAUDE.md                      # Root context (concise <60 lines)
-├── .claude/
-│   ├── settings.json              # Tool permissions
-│   └── commands/                  # Slash commands
-│       ├── intake.md              # /project:intake
-│       ├── analyze.md             # /project:analyze
-│       └── memo.md                # /project:memo
-├── skills/
-│   ├── decision-kernel/           # Core analysis skill
-│   │   ├── SKILL.md
-│   │   ├── references/
-│   │   │   ├── true-assessment.md
-│   │   │   ├── north-assessment.md
-│   │   │   └── aligned-assessment.md
-│   │   └── scripts/
-│   │       └── validate_kernel.py
-│   ├── memo-generator/            # Decision memo skill
-│   │   ├── SKILL.md
-│   │   └── assets/
-│   │       └── memo-template.md
-│   └── intake-processor/          # Client intake skill
-│       ├── SKILL.md
-│       └── references/
-│           └── intake-validation.md
-├── artifacts/                     # Core project documents
-│   ├── overview.md
-│   ├── intake-form.md
-│   ├── pricing.md
-│   └── bridge.md
-├── clients/                       # Client work (gitignored)
-│   └── [client-id]/
-│       ├── intake.md
-│       ├── analysis/
-│       └── memo.pdf
-└── outputs/                       # Deliverables
-```
+- Claude client work: `TESGI_Claudvisor/clients/<client_id>/`
+- TESGI client work: `tesgi-advisory-os/02_client_work/<slug>/`
+- Mapping contract: `tesgi-advisory-os/03_tools/adapter/MAPPING_SPEC.md`
+- Coordination log: `Coordination_Inbox/codex_claude_changelog.md`
 
-### 3.2 Advisory Council Pattern
+## 4. Standard Operating Flow
 
-The Advisory Council is a subagent architecture for decision analysis:
+1. Run Claude commands to produce intake, analysis, sources, and memo drafts.
+2. Sync Claude to TESGI:
+   - `python 03_tools/adapter/claude_to_tesgi.py <client_id> --force`
+3. Run TESGI command chain:
+   - `python -m tesgi validate <slug>`
+   - `python -m tesgi build-memo <slug>`
+   - `python -m tesgi package <slug>`
+   - `python -m tesgi run <slug>`
+4. If needed, sync TESGI back to Claude:
+   - `python 03_tools/adapter/tesgi_to_claude.py <slug> --force`
+5. Run regression checks before governance-sensitive changes:
+   - `python -m tesgi eval`
+   - `python -m tesgi eval --include-negative`
 
-| Agent | Role | Triggers |
-|-------|------|----------|
-| **Truth Auditor** | Validates information integrity | Fact-checking, source verification |
-| **Horizon Analyst** | Assesses long-term context | Regulatory, environmental, hazard review |
-| **Coherence Evaluator** | Tests objective-constraint alignment | Goal-reality fit analysis |
-| **Synthesis Lead** | Integrates findings, produces memo | Final decision state determination |
+## 5. Packaging and Evidence Requirements
 
-Use `ultrathink` when invoking complex multi-agent analysis.
+Required package artifacts in `04_package/`:
 
----
+- `memo.pdf`
+- `invoice.pdf`
+- `receipt.pdf`
+- `manifest.json`
+- `gate_report.json`
+- `runlog.jsonl`
 
-## 4. Role Boundaries (Non-Negotiable)
+Run outputs in `runs/YYYYMMDD_<slug>_<run_id>/` must include:
 
-- This work is **advisory only**
-- No fiduciary, brokerage, or agency relationship is created
-- Clients retain full decision authority
-- "Walk away" is a valid and responsible outcome
-- No guarantees, predictions, or outcome promises
+- `manifest.json`
+- `gate_report.json`
+- `build_log.txt`
+- `codex_session_pointer.txt`
 
----
+## 6. Boundary and Language Discipline
 
-## 5. Standard Operating Flow
-
-```
-1. Client receives overview + intake form
-2. Scope confirmed, payment received
-3. Desktop analysis using public information
-4. Decision Kernel applied (TRUE → NORTH → ALIGNED)
-5. Decision Memo prepared and delivered
-6. One clarification email if needed
-```
-
-Do not add steps without documenting why.
-
----
-
-## 6. Language Discipline
-
-| Context | Tone | Examples |
-|---------|------|----------|
-| **Internal** | Precise, analytical, explicit | "Risk exposure elevated", "Kernel leg fails" |
-| **External** | Calm, plain, non-promotional | "Further information may be needed", "Proceeding may not be advisable" |
-
-**Avoid:** urgency, certainty, persuasion, outcome framing.
-
-Translate internal analysis before client delivery.
-
----
+- Advisory only; no representation.
+- No guarantees or outcome promises.
+- Decision memo must include "What This Memo Does Not Say".
+- Decision memo must include "Non-representational advisory only".
 
 ## 7. Change Control
 
-Any change that:
-- Expands scope
-- Weakens boundaries  
-- Introduces outcome language
-- Increases regulatory ambiguity
+- Follow TESGI tiered governance in `tesgi-advisory-os/00_governance/CHANGE_CONTROL.md`.
+- Constitution-level changes require ADR and explicit acceptance.
+- `ADR_0001_Governed_Self_Improvement.md` is the baseline governance ADR.
 
-...must be explicitly documented and justified.
+## 8. Deprecated References
 
-**Silent drift is prohibited.**
+Do not use `scripts/validate_kernel.py`; it is not part of the active architecture.
+Use `python -m tesgi validate <slug>` for gate validation.
 
----
+## 9. Coordination Requirement
 
-## 8. CLI Execution Commands
+After substantial changes, append a concise entry to:
 
-```bash
-# Initialize analysis session
-claude /project:intake [client-id]
+- `Coordination_Inbox/codex_claude_changelog.md`
 
-# Run decision kernel analysis
-claude /project:analyze [client-id] --ultrathink
-
-# Generate decision memo
-claude /project:memo [client-id]
-
-# Validate kernel compliance
-claude "run scripts/validate_kernel.py [client-id]"
-```
-
----
-
-## 9. North Star
-
-Speed is not the objective.  
-Scale is not the objective.  
-Completion is not the objective.
-
-**Correct understanding is the objective.**
-
----
-
-*End of Instructions*
+This file is the shared cross-agent handoff record.
