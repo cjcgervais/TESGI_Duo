@@ -521,3 +521,82 @@ From `tesgi-advisory-os/`:
 ### Claude handoff message (copy/paste)
 
 Codex implemented plugin interfaces with allowlist + version pinning in `tesgi-advisory-os` commit `9b81d14`. `validate/run/eval` now accept `--plugins`, with core gates still enforced regardless of plugin set. Please reference `00_governance/PLUGIN_ALLOWLIST.json` and `03_tools/plugins/README.md` for integration details.
+
+---
+
+## Claude Opus 4.5 — Evidence Notary Commit + Plugin Review (2026-02-06)
+
+### Evidence Notary Committed to TESGI_Claudvisor
+
+Reviewed and committed unexpected uncommitted changes found in TESGI_Claudvisor:
+
+- Commit: `4709670`
+- Message: `Add evidence-notary skill for source provenance tracking`
+
+### Files committed (6 files, +933 lines)
+
+| File | Description |
+|------|-------------|
+| `skills/evidence-notary/SKILL.md` | Tier 1-4 source classification, manifest schema |
+| `skills/evidence-notary/references/source-types.md` | Land transaction source type reference |
+| `skills/evidence-notary/references/uncertainty-mapping.md` | Claim-evidence mapping methodology |
+| `.claude/commands/sources.md` | `/project:sources` command definition |
+| `CLAUDE.md` | Added skill, command, Advisory Council entry |
+| `skills/decision-kernel/references/true-assessment.md` | Citation integration with Evidence Notary |
+
+### Quality assessment
+
+- Skill follows same frontmatter pattern as existing skills
+- Command follows same structure as `analyze.md`
+- Reference files are comprehensive and domain-appropriate
+- TRUE assessment integration creates proper linkage between skills
+
+### Not committed
+
+- `INBOX/` — Document staging area with older files from Jan 7
+
+---
+
+### Plugin System Review (tesgi-advisory-os)
+
+Reviewed Codex's plugin implementation in commit `9b81d14`.
+
+### Architecture assessment: PASS
+
+| Component | Quality | Notes |
+|-----------|---------|-------|
+| `interfaces.py` | Excellent | Clean base classes, frozen `PolicyFinding` dataclass |
+| `manager.py` | Excellent | Robust allowlist loading with validation |
+| `reference.py` | Good | Includes `RequireSourcesManifestPolicyPlugin` |
+| `PLUGIN_ALLOWLIST.json` | Good | Version-pinned, all disabled by default |
+| `__main__.py` integration | Good | Non-invasive, plugins additive to core gates |
+
+### Security controls verified
+
+1. Allowlist enforcement — Only plugins in governance JSON can load
+2. Version pinning — Runtime checks version attribute matches spec
+3. Type verification — Runtime checks plugin_type matches declared type
+4. Explicit opt-in — All plugins `enabled_by_default: false`
+5. Core gates unaffected — Plugin findings appended after O/A/B/C/D gates
+
+### Plugin system test results
+
+| Test | Result |
+|------|--------|
+| `list_allowlisted_plugins.py` | PASS |
+| `eval` (no plugins) | PASS (6/6 cases) |
+| `eval --plugins noop_workflow,noop_policy` | PASS |
+| `eval --plugins jsonl_telemetry` | PASS (telemetry written) |
+| `eval --plugins all` | EXPECTED FAIL (`require_sources_manifest` strict) |
+| Invalid plugin ID | PASS (exit 2, helpful error) |
+
+### Cross-repo coherence
+
+`RequireSourcesManifestPolicyPlugin` in tesgi-advisory-os checks for `01_sources/sources_manifest.json`, which aligns with `evidence-notary` skill in TESGI_Claudvisor that generates this file via `/project:sources`.
+
+### Status
+
+- Evidence Notary skill: COMMITTED (`4709670`)
+- Plugin system review: PASS
+- Plugin system tests: ALL PASS
+- Integration coherence: VERIFIED
