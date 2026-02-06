@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import __version__
+from .orchestration import OrchestrationEngine, OrchestrationError
 
 ROOT = Path(__file__).resolve().parents[1]
 ALLOWLIST_FILES = (
@@ -317,6 +318,26 @@ def proceed_blockers(base_dir):
     return blockers
 
 
+def gate_orchestration(base_dir):
+    engine = OrchestrationEngine(base_dir)
+    status = engine.evaluate()
+    if not status.valid:
+        return GateResult(
+            "O",
+            "Orchestration state order",
+            False,
+            "; ".join(status.violations),
+        )
+    if status.stage == "uninitialized":
+        return GateResult(
+            "O",
+            "Orchestration state order",
+            False,
+            "intake artifacts are incomplete",
+        )
+    return GateResult("O", "Orchestration state order", True, f"OK ({status.stage})")
+
+
 def gate_kernel():
     kernel_path = ROOT / "00_governance" / "KERNEL.md"
     if not kernel_path.is_file():
@@ -494,6 +515,7 @@ def gate_manifest(base_dir):
 
 def run_gates(base_dir):
     return [
+        gate_orchestration(base_dir),
         gate_kernel(),
         gate_decision_state(base_dir),
         gate_language(base_dir),
@@ -581,6 +603,15 @@ def cmd_run(slug):
     exit_code, results = cmd_validate(slug, base_dir=base_dir)
     write_gate_report(base_dir, slug, results)
     write_manifest(base_dir)
+    if exit_code != 0:
+        print("RUN: BLOCKED (package stage requires all gates to pass)")
+        sys.exit(exit_code)
+    engine = OrchestrationEngine(base_dir)
+    try:
+        engine.require_package_allowed(results)
+    except OrchestrationError as exc:
+        print(f"ERROR: Package stage blocked by orchestration: {exc}", file=sys.stderr)
+        sys.exit(1)
     run_timestamp = datetime.now(timezone.utc)
     run_dir = ROOT / "runs" / run_timestamp.strftime(f"%Y%m%d_{slug}_%H%M%SZ")
     run_dir.mkdir(parents=True, exist_ok=True)
@@ -604,8 +635,6 @@ def cmd_run(slug):
     }
     record_path = run_dir / "run_record.json"
     write_json(record_path, record)
-    if exit_code != 0:
-        sys.exit(exit_code)
 
 
 def cmd_eval():

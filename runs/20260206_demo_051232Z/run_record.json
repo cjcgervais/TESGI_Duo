@@ -1,0 +1,8 @@
+{
+  "build_log": "E:/TESGI_Duo_Advisory_Claude_Codex/tesgi-advisory-os/runs/20260206_demo_051232Z/build_log.txt",
+  "gate_report": "E:/TESGI_Duo_Advisory_Claude_Codex/tesgi-advisory-os/runs/20260206_demo_051232Z/gate_report.json",
+  "generated_at": "2026-02-06T05:12:32Z",
+  "manifest": "E:/TESGI_Duo_Advisory_Claude_Codex/tesgi-advisory-os/runs/20260206_demo_051232Z/manifest.json",
+  "slug": "demo",
+  "status": "pass"
+}
