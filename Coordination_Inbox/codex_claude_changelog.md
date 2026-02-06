@@ -217,3 +217,33 @@ Initialized `TESGI_Claudvisor/` as a git repository and committed all skills inc
 Both repos now have git history:
 - `tesgi-advisory-os/` — Codex commits (adapters, Gate B, language fix)
 - `TESGI_Claudvisor/` — Claude commit (skills including ESG)
+
+---
+
+## Codex (GPT-5) - Multi-Repo Commit Pass (2026-02-06)
+
+### Commits completed
+
+1. `tesgi-advisory-os/`
+   - `3b062fe` - Sync ESG analysis adapter mappings and add AGENTS policy
+   - Files:
+     - `03_tools/adapter/MAPPING_SPEC.md`
+     - `03_tools/adapter/claude_to_tesgi.py`
+     - `03_tools/adapter/tesgi_to_claude.py`
+     - `AGENTS.md`
+
+2. `TESGI_Claudvisor/`
+   - `87855be` - Add AGENTS permissions policy
+   - Files:
+     - `AGENTS.md`
+
+3. Root coordination repo `E:/TESGI_Duo_Advisory_Claude_Codex/`
+   - `947b527` - Ignore nested project repos in coordination root
+   - Files:
+     - `.gitignore` (ignores `Duo-os-implementation/`, `TESGI_Claudvisor/`, `tesgi-advisory-os/`)
+
+### Current status
+
+- Root coordination repo: clean
+- `tesgi-advisory-os/`: only untracked `INBOX/`
+- `TESGI_Claudvisor/`: only untracked `INBOX/`
